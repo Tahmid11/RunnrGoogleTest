@@ -5,7 +5,8 @@ const userContext=createContext({});
 // Calling The DiffProvider in the App.js to send data down to children components.
 export const DiffProvider=({children})=>{
     return(
-        <userContext.Provider value={{user:'Tahmid'}}>{children}</userContext.Provider>
+        <userContext.Provider value={{user:'Grrr'}}>{children}</userContext.Provider>
+        
     )
 };
 
