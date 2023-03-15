@@ -2,6 +2,7 @@
   "expo": {
     "name": "Runnr",
     "slug": "Runnr",
+    "plugins": ["@react-native-google-signin/google-signin"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,13 +22,20 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.example.runnr",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e8c81709-f8e0-4624-a104-97e0f58c7e93"
+      }
     }
   }
 }

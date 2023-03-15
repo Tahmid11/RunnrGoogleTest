@@ -7,9 +7,11 @@ export default function App() {
   
   
   return (
+    
     <DiffProvider>
       <Navigation/>
     </DiffProvider>
+    
    
   )
 };

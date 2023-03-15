@@ -2,7 +2,7 @@
 import React from 'react';
 import { View } from 'react-native';
 // Navigation
-import { NavigationContainer } from '@react-navigation/native';
+// import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -15,6 +15,7 @@ import Activity from '../screens/Activity';
 import Login from '../screens/Login';
 
 import callingContext from '../components/callingContext';
+import { NavigationContainer } from '@react-navigation/native';
 
 
 // Creating the different navigation.
@@ -43,25 +44,31 @@ const LoginScreen=()=>{
 // Bottom tab navigator.
 export default function Navigation() {
   const {user}=callingContext();
-  console.log(user)
+  // console.log(ifUserHasLoggedIn())
+
+  
+
 
   
   return (
   
     
-      <NavigationContainer>
+    <NavigationContainer>
       {/* HOC; surrounding the children and passing data from the parent to the children.  */}
       {user ?(
           <bottomTabs.Navigator>
-          <bottomTabs.Screen name='Match' component={Match}/>
+          <bottomTabs.Screen name='Match' component={Match} options={{headerShown:false}}/>
           <bottomTabs.Screen name='Message' component={Message}/>
           <bottomTabs.Screen name='Activity' component={Activity}/>
           <bottomTabs.Screen name='Setting' options={{title:'Settings',headerShown:false}} component={SettingScreen} />
           </bottomTabs.Navigator>
-      ):(
+       ):( 
+        <View style={{ flex: 1 }}>
         <LoginScreen/>
-      )}
+        </View> 
+      )} 
       </NavigationContainer>
+      
       
   
   
