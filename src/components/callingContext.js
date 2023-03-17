@@ -17,7 +17,7 @@ export const DiffProvider=({children})=>{
     
     
     async function onGoogleButtonPress() {
-      setLoading(false)
+      setLoading(true)
       
     // Check if your device supports Google Play
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -39,7 +39,7 @@ export const DiffProvider=({children})=>{
   // 'user' stores user information.
   const [user, setUser] = useState();
 //   Dont make use of setLoading - Global loading context...
-  const [isLoading,setLoading]=useState(true);
+  const [isLoading,setLoading]=useState(false);
   
 
   

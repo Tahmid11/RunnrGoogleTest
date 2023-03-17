@@ -9,12 +9,13 @@ const Login = () => {
 
   
   const handleGoogleSignIn = async () => {
+    console.log('This is the loading value currently: ' + isLoading)
     try {
-      setLoading(true)
-      console.log('This is the value currently in Loading in Login.js :' + isLoading)
       await onGoogleButtonPress();
+      console.log('This is the value currently in Loading in Login.js :' + isLoading)
+      
       console.log('Signed in with Google!');
-      setLoading(false);
+      await setLoading(false);
       console.log('What is isLoading right now after logging in: ', isLoading);
     } catch (error) {
       console.log('Error signing in with Google:', error);
@@ -35,7 +36,7 @@ const Login = () => {
     //   )}
     // </View>
     <View style={styles.wrap}>
-      <Text>{isLoading ?'This is the loading screen' :'Loading...'}</Text>
+      <Text>{isLoading ?'Loading...' :'This is the login screen.'}</Text>
 
       
       <TouchableOpacity onPress={handleGoogleSignIn} style={styles.button}>
