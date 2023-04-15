@@ -1,5 +1,5 @@
 import React , { useState, useMemo, useEffect} from "react";
-import { Text,Button,View, Platform, ScrollView, Modal, Touchable, TouchableOpacity, StyleSheet} from "react-native";
+import { Text,Button,View, Platform, ScrollView, Touchable, TouchableOpacity, StyleSheet} from "react-native";
 import auth from '@react-native-firebase/auth';
 import callingContext from "../components/callingContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
@@ -12,7 +12,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 // import DateTimePickerModal from 'react-native-modal-datetime-picker'
 
-import DatePicker,{ getFormatedDate, getToday } from 'react-native-modern-datepicker';
+// import DatePicker,{ getFormatedDate, getToday } from 'react-native-modern-datepicker';
 
 
 
@@ -21,83 +21,78 @@ const Setting=({navigation})=>{
 
 
 
-    const todaysDate = new Date();
+    // const todaysDate = new Date();
 
-    const {setUser, setLoading}=callingContext();
+    // const {setUser, setLoading}=callingContext();
 
-    // Modern dateTimePicker.
-    const [calendarOpen,setCalendarOpen]=useState(false)
-    const [maxYear,setMaxYear]=useState(todaysDate.getFullYear()-18)
-    const [maxMonth,setMonth]=useState(todaysDate.getMonth()+1)
-    const [maxDay,setDay]=useState(todaysDate.getDate())
-    const [x,setX]=useState()
-    const [y,setY]=useState()
-    const [z,setZ]=useState()
-    const [hasSelectedDate, setHasUserSelectedDate]=useState(false)
-
-    const[young,setYoungness]=useState(false);
-
-
+    // // Modern dateTimePicker.
+    // const [calendarOpen,setCalendarOpen]=useState(false)
+    // const [maxYear,setMaxYear]=useState(todaysDate.getFullYear()-18)
+    // const [maxMonth,setMonth]=useState(todaysDate.getMonth()+1)
+    // const [maxDay,setDay]=useState(todaysDate.getDate())
+    // const [x,setX]=useState()
+    // const [y,setY]=useState()
+    // const [z,setZ]=useState()
+    // const [hasSelectedDate, setHasUserSelectedDate]=useState(false)
+    // const [gettingTheSelectedDate,setGettingTheSelectedDate]=useState();
+    // const[young,setYoungness]=useState(false);
 
 
-
-
-    const year=Number(maxYear)
     
 
 
-    const closeCalendar=()=>{
-        setCalendarOpen(false);
-    }
-    const seeingCalendar=()=>{
-        setCalendarOpen(true)
-    }
+    // const closeCalendar=()=>{
+    //     setCalendarOpen(false);
+    // }
+    // const seeingCalendar=()=>{
+    //     setCalendarOpen(true)
+    // }
 
-    const [gettingTheSelectedDate,setGettingTheSelectedDate]=useState();
+    
 
-    const afterSettingDate=(date)=>{
-        setGettingTheSelectedDate(date)
-        setHasUserSelectedDate(true)
-        closeCalendar()
-    }
-    useEffect(() => {
+    // const afterSettingDate=(date)=>{
+    //     setGettingTheSelectedDate(date)
+    //     setHasUserSelectedDate(true)
+    //     closeCalendar()
+    // }
+    // useEffect(() => {
         
         
-        const yearString=maxYear.toString()
-        const monthString=maxMonth.toString().padStart(2,'0')
-        const dayString=maxDay.toString().padStart(2,'0')
+    //     const yearString=maxYear.toString()
+    //     const monthString=maxMonth.toString().padStart(2,'0')
+    //     const dayString=maxDay.toString().padStart(2,'0')
         
 
-        if (x && y && z)
-        {
+    //     if (x && y && z)
+    //     {
 
-        if (Number(yearString)>=Number(x) && Number(monthString)>=Number(y) && Number(dayString)>=Number(z)){
-            setYoungness(false)
-            console.log('Your good!')
-        }
-        else{
-            setYoungness(true)
-            console.log('Too young sorry.')
-        }
-    }
-      }, [x, y, z]);
+    //     if (Number(yearString)>=Number(x) && Number(monthString)>=Number(y) && Number(dayString)>=Number(z)){
+    //         setYoungness(false)
+    //         console.log('Your good!')
+    //     }
+    //     else{
+    //         setYoungness(true)
+    //         console.log('Too young sorry.')
+    //     }
+    // }
+    //   }, [x, y, z]);
 
-    useEffect(()=>{
-        if (gettingTheSelectedDate!==todaysDate || gettingTheSelectedDate!==null){
+    // useEffect(()=>{
+    //     if (gettingTheSelectedDate!==todaysDate || gettingTheSelectedDate!==null){
 
-            // gettingTheSelectedDate stores the Year/Month/Day
-            const h=gettingTheSelectedDate;
-            if (h){
-                setX(h.split("/")[0].toString())
-                setY(h.split('/')[1].toString())
-                setZ(h.split('/')[2].toString())
-            }
-        }
-        else{
-            console.log('Error')
-        }   
+    //         // gettingTheSelectedDate stores the Year/Month/Day
+    //         const h=gettingTheSelectedDate;
+    //         if (h){
+    //             setX(h.split("/")[0].toString())
+    //             setY(h.split('/')[1].toString())
+    //             setZ(h.split('/')[2].toString())
+    //         }
+    //     }
+    //     else{
+    //         console.log('Error')
+    //     }   
 
-    }, [gettingTheSelectedDate])
+    // }, [gettingTheSelectedDate])
 
     
     
@@ -156,10 +151,6 @@ const Setting=({navigation})=>{
 
     
 
-  
-
-   console.log(todaysDate.getFullYear())
-
     
     return( 
 
@@ -210,7 +201,7 @@ const Setting=({navigation})=>{
     /> */}
 
 
-    <TouchableOpacity
+    {/* <TouchableOpacity
         style={styles.selectDateButton}
         onPress={seeingCalendar}
     >
@@ -239,8 +230,8 @@ const Setting=({navigation})=>{
                     <Text></Text>
                 )
             }
-    </View>
-    <Modal
+    </View> */}
+    {/* <Modal
         animationType="slide"
         transparent={true}
         visible={calendarOpen}
@@ -248,14 +239,11 @@ const Setting=({navigation})=>{
         <View style={{flex:1, justifyContent:'center' }}>
             <View style={{margin:20, backgroundColor:'white',flexDirection:'column', paddingVertical:12, alignItems:'center', justifyContent:'center', borderRadius:4}}>
             <DatePicker 
-            
             isGregorian={true}
             mode="calendar"
             onDateChange={(date)=>{
                 afterSettingDate(date)
-                           
             }}
-            
             maximumDate={`${todaysDate.getFullYear().toString()}-${(todaysDate.getMonth()+1).toString().padStart(2,'0')}-${(todaysDate.getDate()).toString().padStart(2,'0')}`}
             current={gettingTheSelectedDate}
             />
@@ -270,7 +258,7 @@ const Setting=({navigation})=>{
        </View>
 
         
-    </Modal>
+    </Modal> */}
 
     
 
