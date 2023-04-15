@@ -1,23 +1,22 @@
-import React, { useState, useMemo, useEffect} from 'react'
-import { ImageBackground, Text, View, Button, TextInput, TouchableOpacity } from 'react-native'
-import TinderCard from 'react-tinder-card'
-import Modal from "react-native-modal";
-import { SelectList } from 'react-native-dropdown-select-list'
-import { Dropdown } from 'react-native-element-dropdown';
+  // New Date Picker
+  // const [theUserDOB,setUserDOB]=useState('');
+  // getFormatedDate(new Date(), "DD/MM/YYYY");
+  // const[showDatePicker,setShowDatePicker]=useState(false);
 
 
+  // asdsajdsajdsja pciekr:
+  // const [isPickerShow, setIsPickerShow] = useState(false);
+  // const [date, setDate] = useState(new Date());
 
+  // const showPicker = () => {
+  //   setIsPickerShow(true);
+  // };
 
-// New DateTimePicker.
-
-
-
-
-
-
-
-
-
+  // const onChange = (event, selectedDate) => {
+  //   const currentDate = selectedDate || date;
+  //   setIsPickerShow(Platform.OS === 'ios' || selectedDate !== undefined);
+  //   setDate(currentDate);
+  // };
 
 
 
@@ -28,6 +27,362 @@ import { Dropdown } from 'react-native-element-dropdown';
             save="value"
           /> */}
 
+
+
+import React, { useState, useMemo, useEffect} from 'react'
+import { ImageBackground, Text, View, Button, TextInput, TouchableOpacity, Modal,  TouchableWithoutFeedback} from 'react-native'
+import TinderCard from 'react-tinder-card'
+import CustomModal from "react-native-modal";
+import { SelectList } from 'react-native-dropdown-select-list'
+import { Dropdown } from 'react-native-element-dropdown';
+// Date Time Picker
+import DatePicker,{ getFormatedDate, getToday } from 'react-native-modern-datepicker';
+
+
+
+
+// New DateTimePicker Vari
+
+
+
+
+
+
+
+
+
+
+
+
+
+const db = [
+  {
+    name: 'Richard Hendricks',
+    img: require('../../assets/images1.png')
+  },
+  {
+    name: 'Erlich Bachman',
+    img: require('../../assets/images1.png')
+  },
+  {
+    name: 'Monica Hall',
+    img: require('../../assets/images1.png')
+  },
+  {
+    name: 'Jared Dunn',
+    img: require('../../assets/images1.png')
+  },
+  {
+    name: 'Dinesh Chugtai',
+    img: require('../../assets/images1.png')
+  }
+  ]
+
+const alreadyRemoved = []
+let charactersState = db // This fixes issues with updating characters state forcing it to use the current state and not the state that was active when the card was created.
+
+const listOfRunningDistances=[
+  {
+    key:1, value:'0-10 mins'
+  },
+  {key:2,value:'11-20 mins'
+  },
+  {
+    key:3,value:'21-30 mins'
+  }
+]
+
+ 
+
+const Match = ({navigation}) => {
+  const [characters, setCharacters] = useState(db)
+  const [lastDirection, setLastDirection] = useState()
+  const [modalVisible, setModalVisible] = useState(false);
+  
+  // const [park,setPark]=useState('');
+
+
+
+  const [runningDistance,setRunningDistance]=useState('');
+
+  // PostCode that user gives
+  const [postCode,setPostCode]=useState('');
+  // if the postcode is true or false...
+  const [postCodeOutcome,setPostCodeOutcome]=useState(false);
+
+  const [boroughOfUser,setBoroughOfUser]=useState('');
+
+
+  
+
+  
+
+  // Modern dateTimePicker (Variables are declared from settings.js).
+  const todaysDate = new Date();
+  const [calendarOpen,setCalendarOpen]=useState(false)
+  const [maxYear,setMaxYear]=useState(todaysDate.getFullYear()-18)
+  const [maxMonth,setMonth]=useState(todaysDate.getMonth()+1)
+  const [maxDay,setDay]=useState(todaysDate.getDate())
+  const [x,setX]=useState()
+  const [y,setY]=useState()
+  const [z,setZ]=useState()
+  const [hasSelectedDate, setHasUserSelectedDate]=useState(false)
+  const [gettingTheSelectedDate,setGettingTheSelectedDate]=useState();
+  const[young,setYoungness]=useState(false);
+  // End Of Variables.
+
+    // Different functions to make it work
+    const closeCalendar=()=>{
+        setCalendarOpen(false);
+    }
+    const seeingCalendar=()=>{
+        setCalendarOpen(true)
+    }
+
+
+
+    const afterSettingDate=(date)=>{
+        setGettingTheSelectedDate(date)
+        setHasUserSelectedDate(true)
+        closeCalendar()
+    }
+    useEffect(() => {
+        
+        
+        const yearString=maxYear.toString()
+        const monthString=maxMonth.toString().padStart(2,'0')
+        const dayString=maxDay.toString().padStart(2,'0')
+        
+
+        if (x && y && z)
+        {
+
+        if (Number(yearString)>=Number(x) && Number(monthString)>=Number(y) && Number(dayString)>=Number(z)){
+            setYoungness(false)
+            console.log('Your good!')
+        }
+        else{
+            setYoungness(true)
+            console.log('Too young sorry.')
+        }
+    }
+      }, [x, y, z]);
+
+    useEffect(()=>{
+        if (gettingTheSelectedDate!==todaysDate || gettingTheSelectedDate!==null){
+
+            // gettingTheSelectedDate stores the Year/Month/Day
+            const h=gettingTheSelectedDate;
+            if (h){
+                setX(h.split("/")[0].toString())
+                setY(h.split('/')[1].toString())
+                setZ(h.split('/')[2].toString())
+            }
+        }
+        else{
+            console.log('Error')
+        }   
+
+    }, [gettingTheSelectedDate])
+
+    // End Of DateTime Functions.
+
+
+
+
+  
+
+  
+ 
+  
+  useEffect(() => {
+    fetch(`https://api.postcodes.io/postcodes/${postCode}`)
+      .then((response) => {
+        return response.json(); // parse response body as JSON
+      })
+      .then((data) => {
+        if (data.status === 200) {
+          setPostCodeOutcome(true);
+          setBoroughOfUser(data.result.admin_district)
+        } else {
+          setPostCodeOutcome(false);
+          setBoroughOfUser('')
+        }
+      } 
+      )
+      .catch((error) => {
+        console.log(error)
+        setPostCodeOutcome(false);
+        setBoroughOfUser('')
+        throw error;
+      })
+      
+      
+  }, [postCode]);
+
+  const handleFormSubmit=()=>{
+    fetch(`https://api.postcodes.io/postcodes/${postCode}`)
+      .then((response) => {
+        return response.json(); // parse response body as JSON
+      })
+      .then((data) => {
+        if (data.status === 200) {
+          setPostCodeOutcome(true);
+          setBoroughOfUser(data.result.admin_district)
+        } else {
+          setPostCodeOutcome(false);
+          setBoroughOfUser('')
+        }
+      } 
+      )
+      .catch((error) => {
+        console.log(error)
+        setPostCodeOutcome(false);
+        setBoroughOfUser('')
+        throw error;
+      })
+
+  }
+
+
+
+
+
+  const childRefs = useMemo(() => Array(db.length).fill(0).map(i => React.createRef()), [])
+
+  const swiped = (direction, nameToDelete) => {
+    console.log('removing: ' + nameToDelete + ' to the ' + direction)
+    setLastDirection(direction)
+    alreadyRemoved.push(nameToDelete)
+  }
+
+  const seeModalPage=()=>{
+    setModalVisible(true)
+  }
+
+ 
+
+  const outOfFrame = (name) => {
+    console.log(name + ' left the screen!')
+    charactersState = charactersState.filter(character => character.name !== name)
+    setCharacters(charactersState)
+  }
+
+  const swipe = (dir) => {
+    const cardsLeft = characters.filter(person => !alreadyRemoved.includes(person.name))
+    if (cardsLeft.length) {
+      const toBeRemoved = cardsLeft[cardsLeft.length - 1].name // Find the card object to be removed
+      const index = db.map(person => person.name).indexOf(toBeRemoved) // Find the index of which to make the reference to
+      alreadyRemoved.push(toBeRemoved) // Make sure the next card gets removed next time if this card do not have time to exit the screen
+      childRefs[index].current.swipe(dir) // Swipe the card!
+    }
+  }
+
+  const closeModal = (event) => {
+    if (event.target === event.currentTarget) {
+      setModalVisible(false);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>React Native Tinder Card</Text>
+      <View style={styles.cardContainer}>
+        {characters.map((character, index) =>
+          <TinderCard ref={childRefs[index]} key={character.name} onSwipe={(dir) => swiped(dir, character.name)} onCardLeftScreen={() => outOfFrame(character.name)}>
+            <View style={styles.card}>
+              <ImageBackground style={styles.cardImage} source={character.img}>
+                <Text style={styles.cardTitle}>{character.name}</Text>
+              </ImageBackground>
+            </View>
+          </TinderCard>
+        )}
+      </View>
+      <View style={styles.buttons}>
+        <Button onPress={() => swipe('left')} title='Swipe left!' />
+        <Button onPress={() => swipe('right')} title='Swipe right!' />
+      </View>
+      {lastDirection ? <Text style={styles.infoText} key={lastDirection}></Text> : <Text style={styles.infoText}>Swipe a card or press a button to get started!</Text>}
+      
+
+
+        <Button 
+        title='See Modal Page'
+        onPress={()=>{seeModalPage()}}
+        />
+        <CustomModal isVisible={modalVisible} onBackdropPress={() => setModalVisible(false)} onRequestClose={closeModal} style={{flex:1}}>
+
+          <View style={{ flex: 1 , backgroundColor:'white'}}>
+          <Text style={{color:'black'}}>Hello!</Text>
+          <Button title="Submit" onPress={()=>{setModalVisible(false)}} />
+
+          
+          <SelectList 
+            data={listOfRunningDistances}
+            setSelected={(distance)=>setRunningDistance(distance)}
+            save='value'
+          />
+
+        
+          <TextInput
+          value={postCode}
+          onChangeText={(value)=>{setPostCode(value)}}
+          style={styles.textInputStyle} // Styling is from the react native website: https://reactnative.dev/docs/textinput
+          />
+
+          <Text>{postCodeOutcome ? `Postcode is correct And Your Borough is ${boroughOfUser} `:`Postcode is incorrect `}</Text>
+
+          <TouchableOpacity
+                  style={styles.selectDateButton}
+                  onPress={seeingCalendar}
+          >
+        <View>
+                {
+                hasSelectedDate?
+                (<Text style={styles.font}>{z + '/' + y + '/' + x}</Text>)
+                :
+                (
+                    <Text style={styles.font}>Select Date </Text>
+                )
+                }
+        </View>
+
+    </TouchableOpacity>
+    <Modal
+        animationType="slide"
+        transparent={true}
+        visible={calendarOpen}
+    >
+        <View style={{flex:1, justifyContent:'center' }}>
+            <View style={{margin:20, backgroundColor:'white',flexDirection:'column', paddingVertical:12, alignItems:'center', justifyContent:'center', borderRadius:4}}>
+            <DatePicker 
+            isGregorian={true}
+            mode="calendar"
+            onDateChange={(date)=>{
+                afterSettingDate(date)
+            }}
+            maximumDate={`${todaysDate.getFullYear().toString()}-${(todaysDate.getMonth()+1).toString().padStart(2,'0')}-${(todaysDate.getDate()).toString().padStart(2,'0')}`}
+            current={gettingTheSelectedDate}
+            />
+                
+            <TouchableOpacity onPress={closeCalendar} style={styles.closeButton}>
+                <View style={styles.closeButtonView}>
+                    <Text style={{color:'black',fontSize:20 }}>Close</Text>
+                </View>
+            </TouchableOpacity>
+            </View>
+       </View>
+
+        
+    </Modal>
+          </View>
+          
+        </CustomModal>
+    </View>
+  )
+}
+
+export default Match
 const styles = {
   container: {
     display: 'flex',
@@ -85,36 +440,75 @@ const styles = {
       borderWidth: 1,
       padding: 10,
     
+  },
+  selectDateButton:{
+    overflow: 'hidden',
+    alignItems:"center",
+    justifyContent:"flex-end",
+    backgroundColor:'white',
+    borderRadius:15,
+    paddingHorizontal:10,
+    paddingVertical:10
+
+},
+font:{
+    fontSize:20,
+    fontWeight:"bold",
+    textAlign:"center"
+
+  },
+  closeButton:{
+    backgroundColor:'white',
+    justifyContent:'center',
+    paddingHorizontal:1,
+    paddingVertical:4
+  },
+  closeButtonView: {
+    paddingHorizontal: 1, // Adjust this value as needed to reduce the horizontal whitespace
+    paddingVertical: 1, // Adjust this value as needed to reduce the vertical whitespace
   }
-
-
 
 }
 
-const db = [
-  {
-    name: 'Richard Hendricks',
-    img: require('../../assets/images1.png')
-  },
-  {
-    name: 'Erlich Bachman',
-    img: require('../../assets/images1.png')
-  },
-  {
-    name: 'Monica Hall',
-    img: require('../../assets/images1.png')
-  },
-  {
-    name: 'Jared Dunn',
-    img: require('../../assets/images1.png')
-  },
-  {
-    name: 'Dinesh Chugtai',
-    img: require('../../assets/images1.png')
-  }
-  ]
 
-  // const listOfParks=[
+{/* Touchable Opacity button
+ <TouchableOpacity onPress={()=>{setShowDatePicker(true)}}>
+  <Text>Date Of Birth {theUserDOB}</Text>
+ </TouchableOpacity>
+
+ { showDatePicker ?
+ (<DatePicker
+  options={{
+    backgroundColor: '#090C08',
+    textHeaderColor: '#FFA25B',
+    textDefaultColor: '#F6E7C1',
+    selectedTextColor: '#fff',
+    mainColor: '#F4722B',
+    textSecondaryColor: '#D6C7A1',
+    borderColor: 'rgba(122, 146, 165, 0.1)',
+  }}
+  mode="calendar"
+  style={{ borderRadius: 10 }}
+  isGregorian={true}
+  selectorEndingYear={2040}
+
+  
+  onDateChange={(value)=>{
+    setUserDOB(value) 
+    setShowDatePicker(false)}}
+/>)
+ :
+ (
+  <Text>Nothing</Text>
+ )
+
+
+ } */}
+
+
+
+
+// const listOfParks=[
 
   //   {key:1,value:'Abbey Gardens'},
   //   {key:2,value:'Abney Park'},
@@ -250,190 +644,9 @@ const db = [
   //   {key:132,value:'Langtons Gardens'},
   //   {key:133,value:'Larkhall Park'},
   //   ]
-const alreadyRemoved = []
-let charactersState = db // This fixes issues with updating characters state forcing it to use the current state and not the state that was active when the card was created.
-
-const listOfRunningDistances=[
-  {
-    key:1, value:'0-10 mins'
-  },
-  {key:2,value:'11-20 mins'
-  },
-  {
-    key:3,value:'21-30 mins'
-  }
-]
-
- 
-
-const Match = ({navigation}) => {
-  const [characters, setCharacters] = useState(db)
-  const [lastDirection, setLastDirection] = useState()
-  const [modalVisible, setModalVisible] = useState(false);
-  
-  // const [park,setPark]=useState('');
-
-
-
-  const [runningDistance,setRunningDistance]=useState('');
-
-  // PostCode that user gives
-  const [postCode,setPostCode]=useState('');
-  // if the postcode is true or false...
-  const [postCodeOutcome,setPostCodeOutcome]=useState(false);
-
-  const [boroughOfUser,setBoroughOfUser]=useState('');
-  
-
-
-  
-
-  
-
-  // New Date Picker
-  const [theUserDOB,setUserDOB]=useState('');
-  // getFormatedDate(new Date(), "DD/MM/YYYY");
-  // const[showDatePicker,setShowDatePicker]=useState(false);
-
-
-  // asdsajdsajdsja pciekr:
-  const [isPickerShow, setIsPickerShow] = useState(false);
-  const [date, setDate] = useState(new Date());
-
-  const showPicker = () => {
-    setIsPickerShow(true);
-  };
-
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setIsPickerShow(Platform.OS === 'ios' || selectedDate !== undefined);
-    setDate(currentDate);
-  };
-
-
-  
- 
-  
-  useEffect(() => {
-    fetch(`https://api.postcodes.io/postcodes/${postCode}`)
-      .then((response) => {
-        return response.json(); // parse response body as JSON
-      })
-      .then((data) => {
-        if (data.status === 200) {
-          setPostCodeOutcome(true);
-          setBoroughOfUser(data.result.admin_district)
-        } else {
-          setPostCodeOutcome(false);
-          setBoroughOfUser('')
-        }
-      } 
-      )
-      .catch((error) => {
-        console.log(error)
-        setPostCodeOutcome(false);
-        setBoroughOfUser('')
-        throw error;
-      })
-      
-      
-  }, [postCode]);
-
-
-
-
-
-  const childRefs = useMemo(() => Array(db.length).fill(0).map(i => React.createRef()), [])
-
-  const swiped = (direction, nameToDelete) => {
-    console.log('removing: ' + nameToDelete + ' to the ' + direction)
-    setLastDirection(direction)
-    alreadyRemoved.push(nameToDelete)
-  }
-
-  const seeModalPage=()=>{
-    setModalVisible(true)
-  }
-
- 
-
-  const outOfFrame = (name) => {
-    console.log(name + ' left the screen!')
-    charactersState = charactersState.filter(character => character.name !== name)
-    setCharacters(charactersState)
-  }
-
-  const swipe = (dir) => {
-    const cardsLeft = characters.filter(person => !alreadyRemoved.includes(person.name))
-    if (cardsLeft.length) {
-      const toBeRemoved = cardsLeft[cardsLeft.length - 1].name // Find the card object to be removed
-      const index = db.map(person => person.name).indexOf(toBeRemoved) // Find the index of which to make the reference to
-      alreadyRemoved.push(toBeRemoved) // Make sure the next card gets removed next time if this card do not have time to exit the screen
-      childRefs[index].current.swipe(dir) // Swipe the card!
-    }
-  }
-
-  console.log(theUserDOB)
-  
-
-
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.header}>React Native Tinder Card</Text>
-      <View style={styles.cardContainer}>
-        {characters.map((character, index) =>
-          <TinderCard ref={childRefs[index]} key={character.name} onSwipe={(dir) => swiped(dir, character.name)} onCardLeftScreen={() => outOfFrame(character.name)}>
-            <View style={styles.card}>
-              <ImageBackground style={styles.cardImage} source={character.img}>
-                <Text style={styles.cardTitle}>{character.name}</Text>
-              </ImageBackground>
-            </View>
-          </TinderCard>
-        )}
-      </View>
-      <View style={styles.buttons}>
-        <Button onPress={() => swipe('left')} title='Swipe left!' />
-        <Button onPress={() => swipe('right')} title='Swipe right!' />
-      </View>
-      {lastDirection ? <Text style={styles.infoText} key={lastDirection}></Text> : <Text style={styles.infoText}>Swipe a card or press a button to get started!</Text>}
-      
-
-
-        <Button 
-        title='See Modal Page'
-        onPress={()=>{seeModalPage()}}
-        />
-        <Modal isVisible={modalVisible} onBackdropPress={() => setModalVisible(false)} style={{flex:1}}>
-          <View style={{ flex: 1 , backgroundColor:'white'}}>
-          <Text style={{color:'black'}}>Hello!</Text>
-          <TextInput></TextInput>
-          <Button title="Submit" onPress={()=>{setModalVisible(false)}} />
-
-          
-
-          <SelectList 
-            data={listOfRunningDistances}
-            setSelected={(distance)=>setRunningDistance(distance)}
-            save='value'
-          />
-
-          
-
-          <TextInput
-          value={postCode}
-          onChangeText={(value)=>{setPostCode(value)}}
-          style={styles.textInputStyle} // Styling is from the react native website: https://reactnative.dev/docs/textinput
-          />
-
-
-
-          
-          
-          <Text>{postCodeOutcome ? `Postcode is correct And Your Borough is ${boroughOfUser} `:`Postcode is incorrect `}</Text>
-          <Button onPress={showPicker} title="Show date picker!" />
-
-          {isPickerShow  && (
+        
+ {/* <Button onPress={showPicker} title="Show date picker!" /> */}
+          {/* {isPickerShow  && (
         <DateTimePicker
           testID="dateTimePicker"
           value={date}
@@ -442,58 +655,4 @@ const Match = ({navigation}) => {
           
           onChange={onChange}
         />
-      )}
-          </View>
-          
-        
-
- 
-        
-
-
-        </Modal>
-        
-
-
-    </View>
-  )
-}
-
-export default Match
-
-
-{/* Touchable Opacity button
- <TouchableOpacity onPress={()=>{setShowDatePicker(true)}}>
-  <Text>Date Of Birth {theUserDOB}</Text>
- </TouchableOpacity>
-
- { showDatePicker ?
- (<DatePicker
-  options={{
-    backgroundColor: '#090C08',
-    textHeaderColor: '#FFA25B',
-    textDefaultColor: '#F6E7C1',
-    selectedTextColor: '#fff',
-    mainColor: '#F4722B',
-    textSecondaryColor: '#D6C7A1',
-    borderColor: 'rgba(122, 146, 165, 0.1)',
-  }}
-  mode="calendar"
-  style={{ borderRadius: 10 }}
-  isGregorian={true}
-  selectorEndingYear={2040}
-
-  
-  onDateChange={(value)=>{
-    setUserDOB(value) 
-    setShowDatePicker(false)}}
-/>)
- :
- (
-  <Text>Nothing</Text>
- )
-
-
- } */}
-        
-        
+      )} */}
