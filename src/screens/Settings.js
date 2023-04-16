@@ -23,7 +23,7 @@ const Setting=({navigation})=>{
 
     // const todaysDate = new Date();
 
-    // const {setUser, setLoading}=callingContext();
+    const {setUser, setLoading}=callingContext();
 
     // // Modern dateTimePicker.
     // const [calendarOpen,setCalendarOpen]=useState(false)

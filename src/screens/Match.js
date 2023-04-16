@@ -28,9 +28,47 @@
           /> */}
 
 
+          const db = [
+            {
+              name: 'Richard Hendricks',
+              img: require('../../assets/images1.png')
+            },
+            {
+              name: 'Erlich Bachman',
+              img: require('../../assets/images1.png')
+            },
+            {
+              name: 'Monica Hall',
+              img: require('../../assets/images1.png')
+            },
+            {
+              name: 'Jared Dunn',
+              img: require('../../assets/images1.png')
+            },
+            {
+              name: 'Dinesh Chugtai',
+              img: require('../../assets/images1.png')
+            }
+            ]
+          
+          const alreadyRemoved = []
+          let charactersState = db // This fixes issues with updating characters state forcing it to use the current state and not the state that was active when the card was created.
+          
+          const listOfRunningDistances=[
+            {
+              key:1, value:'0-10 mins'
+            },
+            {key:2,value:'11-20 mins'
+            },
+            {
+              key:3,value:'21-30 mins'
+            }
+          ]
+          
+
 
 import React, { useState, useMemo, useEffect} from 'react'
-import { ImageBackground, Text, View, Button, TextInput, TouchableOpacity, Modal,  TouchableWithoutFeedback} from 'react-native'
+import { ImageBackground, Text, View, Button, TextInput, TouchableOpacity, Modal,Platform} from 'react-native'
 import TinderCard from 'react-tinder-card'
 import CustomModal from "react-native-modal";
 import { SelectList } from 'react-native-dropdown-select-list'
@@ -38,13 +76,9 @@ import { Dropdown } from 'react-native-element-dropdown';
 // Date Time Picker
 import DatePicker,{ getFormatedDate, getToday } from 'react-native-modern-datepicker';
 
+// Image Picker= https://docs.expo.dev/versions/latest/sdk/imagepicker/#mediatypeoptions
 
-
-
-// New DateTimePicker Vari
-
-
-
+import * as ImagePicker from 'expo-image-picker';
 
 
 
@@ -55,42 +89,11 @@ import DatePicker,{ getFormatedDate, getToday } from 'react-native-modern-datepi
 
 
 
-const db = [
-  {
-    name: 'Richard Hendricks',
-    img: require('../../assets/images1.png')
-  },
-  {
-    name: 'Erlich Bachman',
-    img: require('../../assets/images1.png')
-  },
-  {
-    name: 'Monica Hall',
-    img: require('../../assets/images1.png')
-  },
-  {
-    name: 'Jared Dunn',
-    img: require('../../assets/images1.png')
-  },
-  {
-    name: 'Dinesh Chugtai',
-    img: require('../../assets/images1.png')
-  }
-  ]
 
-const alreadyRemoved = []
-let charactersState = db // This fixes issues with updating characters state forcing it to use the current state and not the state that was active when the card was created.
 
-const listOfRunningDistances=[
-  {
-    key:1, value:'0-10 mins'
-  },
-  {key:2,value:'11-20 mins'
-  },
-  {
-    key:3,value:'21-30 mins'
-  }
-]
+
+
+
 
  
 
@@ -194,7 +197,7 @@ const Match = ({navigation}) => {
 
   
  
-  
+  // Postcode validation.
   useEffect(() => {
     fetch(`https://api.postcodes.io/postcodes/${postCode}`)
       .then((response) => {
@@ -220,6 +223,8 @@ const Match = ({navigation}) => {
       
   }, [postCode]);
 
+  // End Of postcode validation.
+
   const handleFormSubmit=()=>{
     fetch(`https://api.postcodes.io/postcodes/${postCode}`)
       .then((response) => {
@@ -244,6 +249,21 @@ const Match = ({navigation}) => {
 
   }
 
+  // Image Picker Functions:
+ 
+  const [image, setImage] = useState(null);
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+  // End Of Image Picker.
 
 
 
@@ -310,12 +330,11 @@ const Match = ({navigation}) => {
         title='See Modal Page'
         onPress={()=>{seeModalPage()}}
         />
-        <CustomModal isVisible={modalVisible} onBackdropPress={() => setModalVisible(false)} onRequestClose={closeModal} style={{flex:1}}>
+        <CustomModal isVisible={modalVisible} onBackdropPress={() => setModalVisible(false)} onRequestClose={closeModal}>
 
-          <View style={{ flex: 1 , backgroundColor:'white'}}>
+          <View style={{ flex: 1 , backgroundColor:'white', alignItems:'center'}}>
           <Text style={{color:'black'}}>Hello!</Text>
-          <Button title="Submit" onPress={()=>{setModalVisible(false)}} />
-
+         
           
           <SelectList 
             data={listOfRunningDistances}
@@ -353,7 +372,7 @@ const Match = ({navigation}) => {
         transparent={true}
         visible={calendarOpen}
     >
-        <View style={{flex:1, justifyContent:'center' }}>
+        <View style={styles.submitButtonContainer}>
             <View style={{margin:20, backgroundColor:'white',flexDirection:'column', paddingVertical:12, alignItems:'center', justifyContent:'center', borderRadius:4}}>
             <DatePicker 
             isGregorian={true}
@@ -375,8 +394,16 @@ const Match = ({navigation}) => {
 
         
     </Modal>
+    {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+    <Button title="Pick an image from camera roll" onPress={pickImage} />
+    
+
+          <View style={{alignItems: 'center'}}>
+          <Button style={{position:'absolute',justifyContent:'center',bottom: 10,borderWidth:1,left:0}}title="Submit" onPress={()=>{setModalVisible(false)}} />
           </View>
           
+          </View>
+
         </CustomModal>
     </View>
   )
@@ -466,6 +493,14 @@ font:{
   closeButtonView: {
     paddingHorizontal: 1, // Adjust this value as needed to reduce the horizontal whitespace
     paddingVertical: 1, // Adjust this value as needed to reduce the vertical whitespace
+  },
+  submitButtonContainer:{
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    left: 0,
+    right: 0,
+    bottom: 10,
   }
 
 }
