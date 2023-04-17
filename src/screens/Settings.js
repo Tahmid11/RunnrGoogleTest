@@ -1,5 +1,5 @@
 import React , { useState, useMemo, useEffect} from "react";
-import { Text,Button,View, Platform, ScrollView, Touchable, TouchableOpacity, StyleSheet} from "react-native";
+import { Text,Button,View, Platform, ScrollView, Touchable, TouchableOpacity, StyleSheet, Image} from "react-native";
 import auth from '@react-native-firebase/auth';
 import callingContext from "../components/callingContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
@@ -13,6 +13,8 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 // import DateTimePickerModal from 'react-native-modal-datetime-picker'
 
 // import DatePicker,{ getFormatedDate, getToday } from 'react-native-modern-datepicker';
+
+
 
 
 
@@ -149,9 +151,7 @@ const Setting=({navigation})=>{
 
     // }
 
-    
 
-    
     return( 
 
         <View style={{flex:1}}>
@@ -178,7 +178,7 @@ const Setting=({navigation})=>{
             setLoading(false)
         }}
         />
-
+       
         
         {/* Modal Date Time Picker */}
 

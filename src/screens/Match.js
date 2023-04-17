@@ -68,7 +68,7 @@
 
 
 import React, { useState, useMemo, useEffect} from 'react'
-import { ImageBackground, Text, View, Button, TextInput, TouchableOpacity, Modal,Platform} from 'react-native'
+import { ImageBackground, Text, View, Button, TextInput, TouchableOpacity, Modal,Image} from 'react-native'
 import TinderCard from 'react-tinder-card'
 import CustomModal from "react-native-modal";
 import { SelectList } from 'react-native-dropdown-select-list'
@@ -141,9 +141,6 @@ const Match = ({navigation}) => {
     const seeingCalendar=()=>{
         setCalendarOpen(true)
     }
-
-
-
     const afterSettingDate=(date)=>{
         setGettingTheSelectedDate(date)
         setHasUserSelectedDate(true)
@@ -249,21 +246,33 @@ const Match = ({navigation}) => {
 
   }
 
-  // Image Picker Functions:
+     // image picker code
+     const [image, setImage] = useState(null);
+
+     const [photoUrl, setPhotoUrl] = useState(null);
+      const handleSelectProfilePhoto = async () => {
+         console.log(ImagePicker);
+         try {
+             let result = await ImagePicker.launchImageLibraryAsync({
+                 mediaTypes: ImagePicker.MediaTypeOptions.All,
+                 allowsEditing: true,
+                 aspect: [4, 3],
+                 quality: 1,
+               });
+           
+             //   console.log(result);
+           
+               if (!result.canceled) {
+                 setPhotoUrl(result.assets[0].uri)
+                 console.log(photoUrl)
+               }
+         } catch (error) {
+           console.error("Error picking image from gallery:", error);
+         }
+       };
+     
  
-  const [image, setImage] = useState(null);
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      aspect: [4, 3],
-      quality: 1,
-    });
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
-  // End Of Image Picker.
+     // End of image picker code
 
 
 
@@ -388,19 +397,26 @@ const Match = ({navigation}) => {
                 <View style={styles.closeButtonView}>
                     <Text style={{color:'black',fontSize:20 }}>Close</Text>
                 </View>
+            
             </TouchableOpacity>
             </View>
        </View>
 
         
     </Modal>
-    {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-    <Button title="Pick an image from camera roll" onPress={pickImage} />
-    
-
-          <View style={{alignItems: 'center'}}>
+              <View style={{alignItems: 'center'}}>
           <Button style={{position:'absolute',justifyContent:'center',bottom: 10,borderWidth:1,left:0}}title="Submit" onPress={()=>{setModalVisible(false)}} />
           </View>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity onPress={handleSelectProfilePhoto}>
+                
+                <Text>Click here</Text>
+            </TouchableOpacity>
+
+
+        </View>
+        <Image source={{ uri: photoUrl }} style={{width:200,height:200}} />
+
           
           </View>
 
