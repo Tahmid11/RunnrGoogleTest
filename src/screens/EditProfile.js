@@ -6,6 +6,13 @@ import * as ImagePicker from 'expo-image-picker';
 import React, { useState, useEffect} from 'react'
 import { Text, View, Button, TextInput, TouchableOpacity, Modal,Image,StyleSheet, ScrollView} from 'react-native'
 
+import callingContext from '../components/callingContext';
+import {doc,setDoc,serverTimestamp} from 'firebase/firestore'
+import { db } from '../Firebase Connectivity/Firebase';
+import { storage } from '../Firebase Connectivity/Firebase';
+import {ref,uploadBytes} from 'firebase/storage'
+
+
 
 const differentRunningTimes=[
     {
@@ -19,9 +26,21 @@ const differentRunningTimes=[
   ]
 const EditProfile=()=>{
 
+    const {user}=callingContext();
+    console.log('This is user: ',user)
+    
+    
+   
 
   const [time,setTime]=useState('');
   const [userSelectedTime, setUserHasSelectedTime]=useState(false)
+
+  // const[imageUploaded, setImageUploaded]=useState(false)
+  // const uploadPicture=async(uri)=>{
+  //   const response=await fetch(uri);
+  //   const blob=await response.blob();
+
+  // }
 
 
 
@@ -70,7 +89,8 @@ const EditProfile=()=>{
         if (x && y && z)
         {
             console.log('This is x' + x + ' this is y : ' + y + ' this is z ' + z)
-        if (Number(yearString)>=Number(x) && Number(monthString)>=Number(y) && Number(dayString)>=Number(z)){
+            console.log('This is the yearString: ' + Number(yearString))
+        if (Number(yearString)>=Number(x) || Number(yearString)==Number(x) && Number(monthString)>=Number(y) || Number(yearString)==Number(x) && Number(monthString)==Number(y) &&  Number(dayString)>=Number(z)){
             setYoungness(false)
             console.log('Your good!')
         }
@@ -145,7 +165,7 @@ const EditProfile=()=>{
         
             if (!result.canceled) {
               setPhotoUrl(result.assets[0].uri)
-              console.log(photoUrl)
+              console.log('This is the uri path:'+photoUrl)
             }
       } catch (error) {
         console.error("Please try picking an image again:", error);
@@ -155,30 +175,56 @@ const EditProfile=()=>{
 
   // End of image picker code
 
-  const handleSumbission=()=>{
-    if (postCodeOutcome&& photoUrl && !young ){
-        console.log('Nice')
+  const handleEditProfileSubmission=async ()=>{
+        console.log('postCodeOutcome:', postCodeOutcome);
+        // console.log('photoUrl:', photoUrl);
+        console.log('young:', young);
+
+    if (postCodeOutcome&& !young &&userSelectedTime){
+
+        // handleImageSubmission()
+        console.log('Your here!')
+
+        try{
+          const userDetailsToSendToFirebase={
+            name:user.displayName,
+            // dOB:`${z}/${y}/${x}`,
+            weeklyRunningTime:userSelectedTime,
+            timestamp:serverTimestamp()
+
+        }
+        // await setDoc(doc(db, "List Of Users", user.uid), {
+        //   name:user.displayName,
+        //   dOB:`${z}/${y}/${x}`,
+        //   weeklyRunningTime:userSelectedTime,
+        //   timestamp:serverTimestamp});
+
+        await setDoc(doc(db, "List Of Users",user.uid,userDetailsToSendToFirebase))
+        console.log('Woooo')
+        console.log('SUCCESSFUL!')
+      
+      }
+        
+        catch(error){
+          
+          console.log('This is the error:'.error)
+        }
+        
     }
     else{
         console.log('Wrong.')
     }
   }
+
+
+  
     
 return (
     <View style={styles.container}>
       <View style={styles.viewStyle}>
 
   
-        {/* <SelectList
-          data={listOfRunningDistances}
-          setSelected={(distance) => setRunningDistance(distance)}
-          save="value"
-        /> */}
-         <TouchableOpacity onPress={handleSelectProfilePhoto}>
-                
-                <Text>Please Select Photo.</Text>
-            </TouchableOpacity>
-        <Image source={{ uri: photoUrl }} style={{width:200,height:200}} />
+       
 
         <Dropdown 
             data={differentRunningTimes}
@@ -195,7 +241,6 @@ return (
             value={time}
             labelField='label'
             style={styles.menu}
-
 
         />
   
@@ -264,10 +309,9 @@ return (
                 <Text>Nice!</Text>
               )
             }
-        <TouchableOpacity style={{justifyContent:'center',top:20,borderWidth:1,left:0, borderRadius: 10}} onPress={()=>{
-            handleSumbission()
-
-        }}>
+        <TouchableOpacity style={{justifyContent:'center',top:20,borderWidth:1,left:0, borderRadius: 10}} 
+        onPress={handleEditProfileSubmission}
+        >
             <Text style={{textAlign:'center'}}>Submit</Text>
         </TouchableOpacity>
       </View>
@@ -350,3 +394,15 @@ const styles = StyleSheet.create({
     
   
   })
+
+
+   {/* <SelectList
+          data={listOfRunningDistances}
+          setSelected={(distance) => setRunningDistance(distance)}
+          save="value"
+        /> */}
+         {/* <TouchableOpacity onPress={handleSelectProfilePhoto}>
+                
+                <Text>Please Select Photo.</Text>
+            </TouchableOpacity>
+        <Image source={{ uri: photoUrl }} style={{width:200,height:200}} /> */}

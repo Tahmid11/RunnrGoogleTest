@@ -3,16 +3,11 @@ import { Text,Button,View, Platform, ScrollView, Touchable, TouchableOpacity, St
 import auth from '@react-native-firebase/auth';
 import callingContext from "../components/callingContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import * as ImagePicker from 'expo-image-picker';
+import {doc,setDoc,Timestamp} from '@firebase/firestore'
+import { db, storage, getDownloadURL} from '../Firebase Connectivity/Firebase';
+import { ref, uploadBytes } from '@firebase/storage';
 
-
-// import DateTimePicker from '@react-native-community/datetimepicker'; = https://docs.expo.dev/versions/latest/sdk/date-time-picker/
-
-
-// import {Calendar} from 'react-native-calendars';
-
-// import DateTimePickerModal from 'react-native-modal-datetime-picker'
-
-// import DatePicker,{ getFormatedDate, getToday } from 'react-native-modern-datepicker';
 
 
 
@@ -20,12 +15,157 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 const Setting=({navigation})=>{
 
+    const {setUser, setLoading,user}=callingContext();
+
+    // image picker code
+    
+  const [photoUrl, setPhotoUrl] = useState(null);
+
+  const handleSelectProfilePhoto = async () => {
+   //   console.log(ImagePicker);
+     try {
+         let result = await ImagePicker.launchImageLibraryAsync({
+             mediaTypes: ImagePicker.MediaTypeOptions.Images,
+             allowsEditing: true,
+             aspect: [4, 3],
+             quality: 1,
+           });       
+         //   console.log(result);
+       
+           if (!result.canceled) {
+            //  setPhotoUrl(result.assets[0].uri)
+             if(user){
+                
+                setPhotoUrl(result.assets[0].uri);
+             }
+             else{
+                console.log('User is not logged in.')
+             }
+             
+             
+           }
+     } catch (error) {
+       console.error("Please try picking an image again:", error);
+     }
+   };
+
+   useEffect(()=>{
+    if (photoUrl){
+        console.log('This is the photo url:' + photoUrl)
+    }
+
+   },[photoUrl])
+ 
+   const handleImageSubmission = async () => {
+    if (photoUrl) {
+        console.log('IT reaches to this function and the photoURL is ' + photoUrl);
+    //   const token = await user.uid;
+    //   console.log('User token:', token);
+        const pictureReference = ref(storage, `profilePictures/${user.uid}`);
+        const fetchedPhotoUrl=await fetch(photoUrl)
+        const thePicture = await fetchedPhotoUrl.blob();
+      try {
+        await uploadBytes(pictureReference, thePicture);
+        // await pictureReference.put(something);
+        console.log('Image uploaded successfully');
+        handleRetrievalOfImage(pictureReference,thePicture)
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log('photo is empty.');
+    }
+    setPhotoUrl(null);
+  };
+
+  const handleRetrievalOfImage=async(pictureReference,thePicture)=>{
+    const picture=await getDownloadURL(pictureReference)
+    setPhotoUrl(picture)
+
+  }
+   
+
+  
+
+    // End of image picker code
+    return( 
+
+        <View style={{flex:1}}>
+        <ScrollView>
+        
+             
+        <Text>Setting Screen</Text>
+        <Button
+        title="Press me"
+        onPress={()=>{
+            navigation.navigate('EditProfile')
+        }} />
+
+        <Button 
+        title="Logout"
+        onPress={async ()=>{
+            setLoading(true)
+            await auth().signOut()
+            await GoogleSignin.revokeAccess()
+            .then(() => 
+            console.log('User signed out!'),
+            setUser(null))
+            .catch((err)=>{console.log(err)})
+            setLoading(false)
+        }}
+        />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity onPress={handleSelectProfilePhoto}>
+                
+                <Text>Pick an IMage</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleImageSubmission}>
+                <Text>Submit</Text>
+            </TouchableOpacity>
+
+        <Image style={{height:100, width:200}}source={{uri:photoUrl}}/>
 
 
+        </View>
 
-    // const todaysDate = new Date();
+    </ScrollView>
+        </View>
+    );
 
-    const {setUser, setLoading}=callingContext();
+}
+export default Setting;
+
+const styles=StyleSheet.create({
+    selectDateButton:{
+        overflow: 'hidden',
+        alignItems:"center",
+        justifyContent:"flex-end",
+        backgroundColor:'white',
+        borderRadius:15,
+        paddingHorizontal:10,
+        paddingVertical:10
+
+    },
+    font:{
+        fontSize:20,
+        fontWeight:"bold",
+        textAlign:"center"
+    
+      },
+      closeButton:{
+        backgroundColor:'white',
+        justifyContent:'center',
+        paddingHorizontal:1,
+        paddingVertical:4
+      },
+      closeButtonView: {
+        paddingHorizontal: 1, // Adjust this value as needed to reduce the horizontal whitespace
+        paddingVertical: 1, // Adjust this value as needed to reduce the vertical whitespace
+      }
+
+
+})
+
 
     // // Modern dateTimePicker.
     // const [calendarOpen,setCalendarOpen]=useState(false)
@@ -152,33 +292,7 @@ const Setting=({navigation})=>{
     // }
 
 
-    return( 
 
-        <View style={{flex:1}}>
-        <ScrollView>
-        
-             
-        <Text>Setting Screen</Text>
-        <Button
-        title="Press me"
-        onPress={()=>{
-            navigation.navigate('EditProfile')
-        }} />
-
-        <Button 
-        title="Logout"
-        onPress={async ()=>{
-            setLoading(true)
-            await auth().signOut()
-            await GoogleSignin.revokeAccess()
-            .then(() => 
-            console.log('User signed out!'),
-            setUser(null))
-            .catch((err)=>{console.log(err)})
-            setLoading(false)
-        }}
-        />
-       
         
         {/* Modal Date Time Picker */}
 
@@ -260,45 +374,13 @@ const Setting=({navigation})=>{
         
     </Modal> */}
 
-    
+// import DateTimePicker from '@react-native-community/datetimepicker'; = https://docs.expo.dev/versions/latest/sdk/date-time-picker/
 
 
+// import {Calendar} from 'react-native-calendars';
 
+// import DateTimePickerModal from 'react-native-modal-datetime-picker'
 
-    </ScrollView>
-        </View>
-    );
+// import DatePicker,{ getFormatedDate, getToday } from 'react-native-modern-datepicker';
 
-}
-export default Setting;
-
-const styles=StyleSheet.create({
-    selectDateButton:{
-        overflow: 'hidden',
-        alignItems:"center",
-        justifyContent:"flex-end",
-        backgroundColor:'white',
-        borderRadius:15,
-        paddingHorizontal:10,
-        paddingVertical:10
-
-    },
-    font:{
-        fontSize:20,
-        fontWeight:"bold",
-        textAlign:"center"
-    
-      },
-      closeButton:{
-        backgroundColor:'white',
-        justifyContent:'center',
-        paddingHorizontal:1,
-        paddingVertical:4
-      },
-      closeButtonView: {
-        paddingHorizontal: 1, // Adjust this value as needed to reduce the horizontal whitespace
-        paddingVertical: 1, // Adjust this value as needed to reduce the vertical whitespace
-      }
-
-
-})
+// const todaysDate = new Date();

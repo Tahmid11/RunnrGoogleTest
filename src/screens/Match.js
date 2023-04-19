@@ -1,33 +1,3 @@
-  // New Date Picker
-  // const [theUserDOB,setUserDOB]=useState('');
-  // getFormatedDate(new Date(), "DD/MM/YYYY");
-  // const[showDatePicker,setShowDatePicker]=useState(false);
-
-
-  // asdsajdsajdsja pciekr:
-  // const [isPickerShow, setIsPickerShow] = useState(false);
-  // const [date, setDate] = useState(new Date());
-
-  // const showPicker = () => {
-  //   setIsPickerShow(true);
-  // };
-
-  // const onChange = (event, selectedDate) => {
-  //   const currentDate = selectedDate || date;
-  //   setIsPickerShow(Platform.OS === 'ios' || selectedDate !== undefined);
-  //   setDate(currentDate);
-  // };
-
-
-
-
-{/* <SelectList 
-            setSelected={(parkname)=>setPark(parkname)}
-            data={listOfParks}
-            save="value"
-          /> */}
-
-
           const db = [
             {
               name: 'Richard Hendricks',
@@ -51,8 +21,8 @@
             }
             ]
           
-          const alreadyRemoved = []
-          let charactersState = db // This fixes issues with updating characters state forcing it to use the current state and not the state that was active when the card was created.
+          // const alreadyRemoved = []
+          // let charactersState = db // This fixes issues with updating characters state forcing it to use the current state and not the state that was active when the card was created.
           
           const listOfRunningDistances=[
             {
@@ -67,9 +37,11 @@
           
 
 
-import React, { useState, useMemo, useEffect} from 'react'
+
+
+import React, { useState, useRef} from 'react'
 import { ImageBackground, Text, View, Button, TextInput, TouchableOpacity, Modal,Image} from 'react-native'
-import TinderCard from 'react-tinder-card'
+// import TinderCard from 'react-tinder-card'
 import CustomModal from "react-native-modal";
 import { SelectList } from 'react-native-dropdown-select-list'
 import { Dropdown } from 'react-native-element-dropdown';
@@ -79,6 +51,9 @@ import DatePicker,{ getFormatedDate, getToday } from 'react-native-modern-datepi
 // Image Picker= https://docs.expo.dev/versions/latest/sdk/imagepicker/#mediatypeoptions
 
 import * as ImagePicker from 'expo-image-picker';
+
+
+import Swiper from 'react-native-deck-swiper';
 
 
 
@@ -103,324 +78,78 @@ const Match = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   
   // const [park,setPark]=useState('');
+  const swipe = useRef(null)
 
+  const handleLeftSwipe=()=>{
+    swipe.current.swipeLeft()
 
-
-  const [runningDistance,setRunningDistance]=useState('');
-
-  // PostCode that user gives
-  const [postCode,setPostCode]=useState('');
-  // if the postcode is true or false...
-  const [postCodeOutcome,setPostCodeOutcome]=useState(false);
-
-  const [boroughOfUser,setBoroughOfUser]=useState('');
-
-
-  
-
-  
-
-  // Modern dateTimePicker (Variables are declared from settings.js).
-  const todaysDate = new Date();
-  const [calendarOpen,setCalendarOpen]=useState(false)
-  const [maxYear,setMaxYear]=useState(todaysDate.getFullYear()-18)
-  const [maxMonth,setMonth]=useState(todaysDate.getMonth()+1)
-  const [maxDay,setDay]=useState(todaysDate.getDate())
-  const [x,setX]=useState()
-  const [y,setY]=useState()
-  const [z,setZ]=useState()
-  const [hasSelectedDate, setHasUserSelectedDate]=useState(false)
-  const [gettingTheSelectedDate,setGettingTheSelectedDate]=useState();
-  const[young,setYoungness]=useState(false);
-  // End Of Variables.
-
-    // Different functions to make it work
-    const closeCalendar=()=>{
-        setCalendarOpen(false);
-    }
-    const seeingCalendar=()=>{
-        setCalendarOpen(true)
-    }
-    const afterSettingDate=(date)=>{
-        setGettingTheSelectedDate(date)
-        setHasUserSelectedDate(true)
-        closeCalendar()
-    }
-    useEffect(() => {
-        
-        
-        const yearString=maxYear.toString()
-        const monthString=maxMonth.toString().padStart(2,'0')
-        const dayString=maxDay.toString().padStart(2,'0')
-        
-
-        if (x && y && z)
-        {
-
-        if (Number(yearString)>=Number(x) && Number(monthString)>=Number(y) && Number(dayString)>=Number(z)){
-            setYoungness(false)
-            console.log('Your good!')
-        }
-        else{
-            setYoungness(true)
-            console.log('Too young sorry.')
-        }
-    }
-      }, [x, y, z]);
-
-    useEffect(()=>{
-        if (gettingTheSelectedDate!==todaysDate || gettingTheSelectedDate!==null){
-
-            // gettingTheSelectedDate stores the Year/Month/Day
-            const h=gettingTheSelectedDate;
-            if (h){
-                setX(h.split("/")[0].toString())
-                setY(h.split('/')[1].toString())
-                setZ(h.split('/')[2].toString())
-            }
-        }
-        else{
-            console.log('Error')
-        }   
-
-    }, [gettingTheSelectedDate])
-
-    // End Of DateTime Functions.
-
-
-
-
-  
-
-  
- 
-  // Postcode validation.
-  useEffect(() => {
-    fetch(`https://api.postcodes.io/postcodes/${postCode}`)
-      .then((response) => {
-        return response.json(); // parse response body as JSON
-      })
-      .then((data) => {
-        if (data.status === 200) {
-          setPostCodeOutcome(true);
-          setBoroughOfUser(data.result.admin_district)
-        } else {
-          setPostCodeOutcome(false);
-          setBoroughOfUser('')
-        }
-      } 
-      )
-      .catch((error) => {
-        console.log(error)
-        setPostCodeOutcome(false);
-        setBoroughOfUser('')
-        throw error;
-      })
-      
-      
-  }, [postCode]);
-
-  // End Of postcode validation.
-
-  const handleFormSubmit=()=>{
-    fetch(`https://api.postcodes.io/postcodes/${postCode}`)
-      .then((response) => {
-        return response.json(); // parse response body as JSON
-      })
-      .then((data) => {
-        if (data.status === 200) {
-          setPostCodeOutcome(true);
-          setBoroughOfUser(data.result.admin_district)
-        } else {
-          setPostCodeOutcome(false);
-          setBoroughOfUser('')
-        }
-      } 
-      )
-      .catch((error) => {
-        console.log(error)
-        setPostCodeOutcome(false);
-        setBoroughOfUser('')
-        throw error;
-      })
-
-  }
-
-     // image picker code
-     const [image, setImage] = useState(null);
-
-     const [photoUrl, setPhotoUrl] = useState(null);
-      const handleSelectProfilePhoto = async () => {
-         console.log(ImagePicker);
-         try {
-             let result = await ImagePicker.launchImageLibraryAsync({
-                 mediaTypes: ImagePicker.MediaTypeOptions.All,
-                 allowsEditing: true,
-                 aspect: [4, 3],
-                 quality: 1,
-               });
-           
-             //   console.log(result);
-           
-               if (!result.canceled) {
-                 setPhotoUrl(result.assets[0].uri)
-                 console.log(photoUrl)
-               }
-         } catch (error) {
-           console.error("Error picking image from gallery:", error);
-         }
-       };
-     
- 
-     // End of image picker code
-
-
-
-
-  const childRefs = useMemo(() => Array(db.length).fill(0).map(i => React.createRef()), [])
-
-  const swiped = (direction, nameToDelete) => {
-    console.log('removing: ' + nameToDelete + ' to the ' + direction)
-    setLastDirection(direction)
-    alreadyRemoved.push(nameToDelete)
-  }
-
-  const seeModalPage=()=>{
-    setModalVisible(true)
-  }
-
- 
-
-  const outOfFrame = (name) => {
-    console.log(name + ' left the screen!')
-    charactersState = charactersState.filter(character => character.name !== name)
-    setCharacters(charactersState)
-  }
-
-  const swipe = (dir) => {
-    const cardsLeft = characters.filter(person => !alreadyRemoved.includes(person.name))
-    if (cardsLeft.length) {
-      const toBeRemoved = cardsLeft[cardsLeft.length - 1].name // Find the card object to be removed
-      const index = db.map(person => person.name).indexOf(toBeRemoved) // Find the index of which to make the reference to
-      alreadyRemoved.push(toBeRemoved) // Make sure the next card gets removed next time if this card do not have time to exit the screen
-      childRefs[index].current.swipe(dir) // Swipe the card!
-    }
-  }
-
-  const closeModal = (event) => {
-    if (event.target === event.currentTarget) {
-      setModalVisible(false);
-    }
   };
+
+  const handleSwipeRight=()=>{
+    swipe.current.swipeRight()
+  }
+
+  const [hasSwipedAll, setHasSwipedAll]=useState(false)
+
+
+
+
+
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>React Native Tinder Card</Text>
-      <View style={styles.cardContainer}>
-        {characters.map((character, index) =>
-          <TinderCard ref={childRefs[index]} key={character.name} onSwipe={(dir) => swiped(dir, character.name)} onCardLeftScreen={() => outOfFrame(character.name)}>
-            <View style={styles.card}>
-              <ImageBackground style={styles.cardImage} source={character.img}>
-                <Text style={styles.cardTitle}>{character.name}</Text>
-              </ImageBackground>
-            </View>
-          </TinderCard>
-        )}
-      </View>
-      <View style={styles.buttons}>
-        <Button onPress={() => swipe('left')} title='Swipe left!' />
-        <Button onPress={() => swipe('right')} title='Swipe right!' />
-      </View>
-      {lastDirection ? <Text style={styles.infoText} key={lastDirection}></Text> : <Text style={styles.infoText}>Swipe a card or press a button to get started!</Text>}
-      
+      <View style={{position:'absolute', alignItems:'center'}}>
+        <Swiper
+          cards={db}
+          cardIndex={0}
+          infinite={false}
+          verticalSwipe={false}
+          horizontalSwipe={true}
+          showSecondCard={true}
+          disableTopSwipe={true}
+          disableBottomSwipe={true}
+          onSwipedAll={()=>{setHasSwipedAll(true)}}
+          ref={swipe}
+          renderCard={(card, index) => {
+            return (
+              <View key={index} style={{ 
+                borderRadius: 4,
+                borderWidth: 2,
+                borderColor: "#E8E8E8",
+                backgroundColor: "white",
+                height:400,
+                width:300}}>
 
-
-        <Button 
-        title='See Modal Page'
-        onPress={()=>{seeModalPage()}}
+                <ImageBackground source={card.img} style={styles.cardImage}>
+                  <Text style={{textAlign: "center",fontSize: 50,backgroundColor: "transparent", color:'white'}}>
+                    {card.name}
+                    </Text>
+                </ImageBackground>
+              </View>
+            
+            );
+          }}
+          stackSize={5}
         />
-        <CustomModal isVisible={modalVisible} onBackdropPress={() => setModalVisible(false)} onRequestClose={closeModal}>
-
-          <View style={{ flex: 1 , backgroundColor:'white', alignItems:'center'}}>
-          <Text style={{color:'black'}}>Hello!</Text>
-         
-          
-          <SelectList 
-            data={listOfRunningDistances}
-            setSelected={(distance)=>setRunningDistance(distance)}
-            save='value'
-          />
-
-        
-          <TextInput
-          value={postCode}
-          onChangeText={(value)=>{setPostCode(value)}}
-          style={styles.textInputStyle} // Styling is from the react native website: https://reactnative.dev/docs/textinput
-          />
-
-          <Text>{postCodeOutcome ? `Postcode is correct And Your Borough is ${boroughOfUser} `:`Postcode is incorrect `}</Text>
-
-          <TouchableOpacity
-                  style={styles.selectDateButton}
-                  onPress={seeingCalendar}
-          >
-        <View>
-                {
-                hasSelectedDate?
-                (<Text style={styles.font}>{z + '/' + y + '/' + x}</Text>)
+         {
+                hasSwipedAll?(
+                <Text>No more cards left to swipe.</Text>)
                 :
                 (
-                    <Text style={styles.font}>Select Date </Text>
-                )
-                }
-        </View>
-
-    </TouchableOpacity>
-    <Modal
-        animationType="slide"
-        transparent={true}
-        visible={calendarOpen}
-    >
-        <View style={styles.submitButtonContainer}>
-            <View style={{margin:20, backgroundColor:'white',flexDirection:'column', paddingVertical:12, alignItems:'center', justifyContent:'center', borderRadius:4}}>
-            <DatePicker 
-            isGregorian={true}
-            mode="calendar"
-            onDateChange={(date)=>{
-                afterSettingDate(date)
-            }}
-            maximumDate={`${todaysDate.getFullYear().toString()}-${(todaysDate.getMonth()+1).toString().padStart(2,'0')}-${(todaysDate.getDate()).toString().padStart(2,'0')}`}
-            current={gettingTheSelectedDate}
-            />
-                
-            <TouchableOpacity onPress={closeCalendar} style={styles.closeButton}>
-                <View style={styles.closeButtonView}>
-                    <Text style={{color:'black',fontSize:20 }}>Close</Text>
+                  <View>
+                <Button title='Swipe Left' onPress={handleLeftSwipe}/>
+                <Button title='Swipe Right' onPress={handleSwipeRight}/>
                 </View>
-            
-            </TouchableOpacity>
-            </View>
-       </View>
+                )
+          }
 
         
-    </Modal>
-              <View style={{alignItems: 'center'}}>
-          <Button style={{position:'absolute',justifyContent:'center',bottom: 10,borderWidth:1,left:0}}title="Submit" onPress={()=>{setModalVisible(false)}} />
-          </View>
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <TouchableOpacity onPress={handleSelectProfilePhoto}>
-                
-                <Text>Click here</Text>
-            </TouchableOpacity>
+        
+      </View>
 
+      
 
-        </View>
-        <Image source={{ uri: photoUrl }} style={{width:200,height:200}} />
-
-          
-          </View>
-
-        </CustomModal>
     </View>
   )
 }
@@ -428,21 +157,19 @@ const Match = ({navigation}) => {
 export default Match
 const styles = {
   container: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
+    flex: 1,
+    backgroundColor: "#F5FCFF"
   },
   header: {
     color: '#000',
     fontSize: 30,
     marginBottom: 30,
   },
-  cardContainer: {
-    width: '90%',
-    maxWidth: 260,
-    height: 300,
-  },
+  // cardContainer: {
+  //   width: '90%',
+  //   maxWidth: 260,
+  //   height: 300,
+  // },
   card: {
     position: 'absolute',
     backgroundColor: '#fff',
@@ -520,6 +247,45 @@ font:{
   }
 
 }
+
+  // const [runningDistance,setRunningDistance]=useState('');
+
+  // // PostCode that user gives
+  // const [postCode,setPostCode]=useState('');
+  // // if the postcode is true or false...
+  // const [postCodeOutcome,setPostCodeOutcome]=useState(false);
+
+  // const [boroughOfUser,setBoroughOfUser]=useState('');
+
+
+
+
+
+  // // End Of postcode validation.
+
+  // const handleFormSubmit=()=>{
+  //   fetch(`https://api.postcodes.io/postcodes/${postCode}`)
+  //     .then((response) => {
+  //       return response.json(); // parse response body as JSON
+  //     })
+  //     .then((data) => {
+  //       if (data.status === 200) {
+  //         setPostCodeOutcome(true);
+  //         setBoroughOfUser(data.result.admin_district)
+  //       } else {
+  //         setPostCodeOutcome(false);
+  //         setBoroughOfUser('')
+  //       }
+  //     } 
+  //     )
+  //     .catch((error) => {
+  //       console.log(error)
+  //       setPostCodeOutcome(false);
+  //       setBoroughOfUser('')
+  //       throw error;
+  //     })
+
+  // }
 
 
 {/* Touchable Opacity button
@@ -707,3 +473,68 @@ font:{
           onChange={onChange}
         />
       )} */}
+
+            {/* <View style={styles.buttons}>
+        <Button onPress={() => swipe('left')} title='Swipe left!' />
+        <Button onPress={() => swipe('right')} title='Swipe right!' />
+      </View> */}
+      {/* {lastDirection ? <Text style={styles.infoText} key={lastDirection}></Text> : <Text style={styles.infoText}>Swipe a card or press a button to get started!</Text>} */}
+
+      {/* <Swiper
+          showsButtons={false}      
+          horizontal={true}
+          alwaysBounceVertical={false}
+
+        >
+          <Image></Image>
+          <Image></Image>
+          <Image></Image>
+
+          
+
+        </Swiper> */}
+        {/* {characters.map((character, index) =>
+          <TinderCard ref={childRefs[index]} key={character.name} onSwipe={(dir) => swiped(dir, character.name)} onCardLeftScreen={() => outOfFrame(character.name)}>
+            <View style={styles.card}>
+              <ImageBackground style={styles.cardImage} source={character.img}>
+                <Text style={styles.cardTitle}>{character.name}</Text>
+              </ImageBackground>
+            </View>
+          </TinderCard>
+        )} */}
+
+        // const childRefs = useMemo(() => Array(db.length).fill(0).map(i => React.createRef()), [])
+
+        // const swiped = (direction, nameToDelete) => {
+        //   console.log('removing: ' + nameToDelete + ' to the ' + direction)
+        //   setLastDirection(direction)
+        //   alreadyRemoved.push(nameToDelete)
+        // }
+      
+        // const seeModalPage=()=>{
+        //   setModalVisible(true)
+        // }
+      
+       
+      
+        // const outOfFrame = (name) => {
+        //   console.log(name + ' left the screen!')
+        //   charactersState = charactersState.filter(character => character.name !== name)
+        //   setCharacters(charactersState)
+        // }
+      
+        // const swipe = (dir) => {
+        //   const cardsLeft = characters.filter(person => !alreadyRemoved.includes(person.name))
+        //   if (cardsLeft.length) {
+        //     const toBeRemoved = cardsLeft[cardsLeft.length - 1].name // Find the card object to be removed
+        //     const index = db.map(person => person.name).indexOf(toBeRemoved) // Find the index of which to make the reference to
+        //     alreadyRemoved.push(toBeRemoved) // Make sure the next card gets removed next time if this card do not have time to exit the screen
+        //     childRefs[index].current.swipe(dir) // Swipe the card!
+        //   }
+        // }
+      
+        // const closeModal = (event) => {
+        //   if (event.target === event.currentTarget) {
+        //     setModalVisible(false);
+        //   }
+        // };

@@ -14,7 +14,9 @@ const Login = () => {
       await onGoogleButtonPress();
       console.log('This is the value currently in Loading in Login.js :' + isLoading)
       
+      
       console.log('Signed in with Google!');
+
       
 
       await setLoading(false);
