@@ -8,9 +8,12 @@ import { Text, View, Button, TextInput, TouchableOpacity, Modal,Image,StyleSheet
 
 import callingContext from '../components/callingContext';
 import {doc,setDoc,serverTimestamp} from 'firebase/firestore'
-import { db } from '../Firebase Connectivity/Firebase';
+import { db, getDownloadURL} from '../Firebase Connectivity/Firebase';
 import { storage } from '../Firebase Connectivity/Firebase';
 import {ref,uploadBytes} from 'firebase/storage'
+
+import { useNavigation } from '@react-navigation/native';
+
 
 
 
@@ -25,9 +28,84 @@ const differentRunningTimes=[
     }
   ]
 const EditProfile=()=>{
+  const navigation = useNavigation();
+
 
     const {user}=callingContext();
     console.log('This is user: ',user)
+
+    const [displayName, setDisplayName]=useState('')
+    const [succesfulPosting, setSuccesfulPosting]=useState(false)
+
+    // Profile Picture Addiing
+    const [photoUrl, setPhotoUrl] = useState(null);
+
+  const handleSelectProfilePhoto = async () => {
+   //   console.log(ImagePicker);
+     try {
+         let result = await ImagePicker.launchImageLibraryAsync({
+             mediaTypes: ImagePicker.MediaTypeOptions.Images,
+             allowsEditing: true,
+             aspect: [4, 3],
+             quality: 1,
+           });       
+         //   console.log(result);
+       
+           if (!result.canceled) {
+            //  setPhotoUrl(result.assets[0].uri)
+             if(user){
+                
+                setPhotoUrl(result.assets[0].uri);
+             }
+             else{
+                console.log('User is not logged in.')
+             }
+             
+             
+           }
+     } catch (error) {
+       console.error("Please try picking an image again:", error);
+     }
+   };
+
+   useEffect(()=>{
+    if (photoUrl){
+        console.log('This is the photo url:' + photoUrl)
+    }
+
+   },[photoUrl])
+ 
+   const handleImageSubmission = async () => {
+    if (photoUrl) {
+        console.log('IT reaches to this function and the photoURL is ' + photoUrl);
+    //   const token = await user.uid;
+    //   console.log('User token:', token);
+        const pictureReference = ref(storage, `profilePictures/${user.uid}`);
+        const fetchedPhotoUrl=await fetch(photoUrl)
+        const thePicture = await fetchedPhotoUrl.blob();
+      try {
+        await uploadBytes(pictureReference, thePicture);
+        // await pictureReference.put(something);
+        console.log('Image uploaded successfully');
+        handleRetrievalOfImage(pictureReference,thePicture)
+        navigation.navigate('Match')
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log('photo is empty.');
+    }
+  };
+
+  const handleRetrievalOfImage=async(pictureReference,thePicture)=>{
+    const picture=await getDownloadURL(pictureReference)
+    setPhotoUrl(picture)
+    setSuccesfulPosting(true)
+    submissionSuccess()
+  }
+   
+
+    // End Of Profile Picture
     
     
    
@@ -149,57 +227,28 @@ const EditProfile=()=>{
   // End Of postcode validation.
   // image picker code
 
-  const [photoUrl, setPhotoUrl] = useState(null);
 
-   const handleSelectProfilePhoto = async () => {
-    //   console.log(ImagePicker);
-      try {
-          let result = await ImagePicker.launchImageLibraryAsync({
-              mediaTypes: ImagePicker.MediaTypeOptions.Images,
-              allowsEditing: true,
-              aspect: [4, 3],
-              quality: 1,
-            });
-        
-          //   console.log(result);
-        
-            if (!result.canceled) {
-              setPhotoUrl(result.assets[0].uri)
-              console.log('This is the uri path:'+photoUrl)
-            }
-      } catch (error) {
-        console.error("Please try picking an image again:", error);
-      }
-    };
-  
-
-  // End of image picker code
 
   const handleEditProfileSubmission=async ()=>{
+
         console.log('postCodeOutcome:', postCodeOutcome);
-        // console.log('photoUrl:', photoUrl);
         console.log('young:', young);
 
-    if (postCodeOutcome&& !young &&userSelectedTime){
 
-        // handleImageSubmission()
+    if (postCodeOutcome&& !young &&userSelectedTime && photoUrl &&displayName){
         console.log('Your here!')
 
         try{
           const userDetailsToSendToFirebase={
-            name:user.displayName,
-            // dOB:`${z}/${y}/${x}`,
+            name:displayName,
+            dOB:`${z}/${y}/${x}`,
+            borough:boroughOfUser,
             weeklyRunningTime:userSelectedTime,
             timestamp:serverTimestamp()
-
         }
-        // await setDoc(doc(db, "List Of Users", user.uid), {
-        //   name:user.displayName,
-        //   dOB:`${z}/${y}/${x}`,
-        //   weeklyRunningTime:userSelectedTime,
-        //   timestamp:serverTimestamp});
 
-        await setDoc(doc(db, "List Of Users",user.uid,userDetailsToSendToFirebase))
+        await setDoc(doc(db, "listOfUsers",user.uid),userDetailsToSendToFirebase)
+        handleImageSubmission().then()
         console.log('Woooo')
         console.log('SUCCESSFUL!')
       
@@ -214,6 +263,14 @@ const EditProfile=()=>{
     else{
         console.log('Wrong.')
     }
+  }
+
+  const submissionSuccess=()=>{
+    if (succesfulPosting){
+      navigation.navigate('Match');
+      
+    }
+
   }
 
 
@@ -245,6 +302,14 @@ return (
         />
   
         <TextInput
+          value={displayName}
+          onChangeText={(value) => {
+            setDisplayName(value);
+          }}
+          placeholder='Please Enter Your First Name'
+          style={styles.textInputStyle}
+        />
+        <TextInput
           value={postCode}
           onChangeText={(value) => {
             setPostCode(value);
@@ -252,6 +317,7 @@ return (
           placeholder='Please Enter Your Postcode.'
           style={styles.textInputStyle}
         />
+      
   
         <Text>
           {postCodeOutcome
@@ -315,6 +381,15 @@ return (
             <Text style={{textAlign:'center'}}>Submit</Text>
         </TouchableOpacity>
       </View>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity onPress={handleSelectProfilePhoto}>
+                
+                <Text>Pick an IMage</Text>
+            </TouchableOpacity>
+        <Image style={{height:100, width:200}}source={{uri:photoUrl}}/>
+
+
+        </View>
 
     </View>
   );

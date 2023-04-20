@@ -77,10 +77,5 @@ export default function Navigation() {
         </View> 
       )} 
       </NavigationContainer>
-      
-      
-  
-  
-   
   )
 };

@@ -111,24 +111,32 @@ const Match = ({navigation}) => {
           disableBottomSwipe={true}
           onSwipedAll={()=>{setHasSwipedAll(true)}}
           ref={swipe}
-          renderCard={(card, index) => {
-            return (
-              <View key={index} style={{ 
-                borderRadius: 4,
-                borderWidth: 2,
-                borderColor: "#E8E8E8",
-                backgroundColor: "white",
-                height:400,
-                width:300}}>
-
-                <ImageBackground source={card.img} style={styles.cardImage}>
-                  <Text style={{textAlign: "center",fontSize: 50,backgroundColor: "transparent", color:'white'}}>
-                    {card.name}
-                    </Text>
-                </ImageBackground>
-              </View>
+          renderCard={
             
-            );
+            (card, index) => {
+              card?(
+                
+                  <View key={index} style={{ 
+                    borderRadius: 4,
+                    borderWidth: 2,
+                    borderColor: "#E8E8E8",
+                    backgroundColor: "white",
+                    height:400,
+                    width:300}}>
+    
+                    <ImageBackground source={card.img} style={styles.cardImage}>
+                      <Text style={{textAlign: "center",fontSize: 50,backgroundColor: "transparent", color:'white'}}>
+                        {card.name}
+                        </Text>
+                    </ImageBackground>
+                  </View>
+                
+
+              ):(
+                <Text>You swiped through all the cards.</Text>
+              )
+              
+            
           }}
           stackSize={5}
         />
