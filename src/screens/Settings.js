@@ -4,7 +4,6 @@ import auth from '@react-native-firebase/auth';
 import callingContext from "../components/callingContext";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import * as ImagePicker from 'expo-image-picker';
-import {doc,setDoc,Timestamp} from '@firebase/firestore'
 import { db, storage, getDownloadURL} from '../Firebase Connectivity/Firebase';
 import { ref, uploadBytes } from '@firebase/storage';
 
@@ -18,6 +17,81 @@ const Setting=({navigation})=>{
     const {setUser, setLoading,user}=callingContext();
 
     // image picker code
+     // Profile Picture Addiing
+     const [photoUrl, setPhotoUrl] = useState(null);
+
+     const handleSelectProfilePhoto = async () => {
+        try {
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+              });       
+            //   console.log(result);
+          
+              if (!result.canceled) {
+               //  setPhotoUrl(result.assets[0].uri)
+                if(user){
+                   
+                   setPhotoUrl(result.assets[0].uri);
+                }
+                else{
+                   console.log('User is not logged in.')
+                }
+                
+              }
+        } catch (error) {
+          console.error("Please try picking an image again:", error);
+        }
+      };
+   
+      useEffect(()=>{
+       if (photoUrl){
+           console.log('This is the photo url:' + photoUrl)
+       }
+   
+      },[photoUrl])
+    
+      const handleImageSubmission = async () => {
+         if (photoUrl) {
+             console.log('IT reaches to this function and the photoURL is ' + photoUrl);
+             const token = await user.getIdToken();
+             console.log('User token:', token);
+   
+               // const pictureReference = ref(storage, `images/${user.uid}/profilePic.jpeg`, { auth: token });
+               const picRef=ref(storage, `profilePictures/${user.uid}/pic`);
+               const fetchedPhotoUrl=await fetch(photoUrl)
+               const thePicture = await fetchedPhotoUrl.blob();
+               try {
+                 console.log('Request',{
+                   auth:{
+                     uid:user.uid,
+                     token:token
+                   },
+                   path:`profilePictures/${user.uid}/pic`,
+                   method:'create'
+                 })
+                 await uploadBytes(picRef, thePicture);
+                 console.log("Image uploaded successfully");
+                 handleRetrievalOfImage(picRef, thePicture);
+                 navigation.navigate("Match");
+               } catch (error) {
+                 console.log(error);
+               }
+         } else {
+           console.log('photo is empty.');
+         }
+     };
+   
+     const handleRetrievalOfImage=async(picRef,thePicture)=>{
+       const picture=await getDownloadURL(picRef)
+       setPhotoUrl(picture)
+
+     }
+      
+   
+       // End Of Profile Picture
     
   
   
@@ -49,6 +123,14 @@ const Setting=({navigation})=>{
             setLoading(false)
         }}
         />
+         <Button 
+            title="Pick An IMage"
+            onPress={handleSelectProfilePhoto}
+         />
+        <Image style={{height:100, width:200}}source={{uri:photoUrl}}/>
+        <Button 
+        title="Submit Image"
+        onPress={handleImageSubmission}/>
         
 
     </ScrollView>

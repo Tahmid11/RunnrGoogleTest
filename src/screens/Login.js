@@ -1,7 +1,6 @@
 import React from "react";
 import { Text,View,Button, TouchableOpacity, StyleSheet } from "react-native";
 import callingContext from "../components/callingContext";
-import SplashScreen from "../components/SplashScreen";
 
 
 const Login = () => {

@@ -9,11 +9,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 // Importing the different screens.
 import Match from '../screens/Match';
 import Setting from '../screens/Settings';
-import EditProfile from '../screens/EditProfile';
-import Message from '../screens/MessageScreen';
-import Activity from '../screens/Activity';
 import Login from '../screens/Login';
-import PopupSreen from '../screens/PopupScreen';
+
 
 import callingContext from '../components/callingContext';
 import { NavigationContainer } from '@react-navigation/native';
@@ -32,14 +29,6 @@ const SettingScreen=()=>{
   return(
   <EdittingProfile.Navigator>
     <EdittingProfile.Screen name='SettingScreen' component={Setting} options={{title:'Setting'}}/>
-    <EdittingProfile.Screen name='edit' component={EditProfile}  
-    options={({ route }) => ({
-      title: "Edit Profile",
-      headerLeft:
-        route.params?.disableBackButton || !route.params?.succesfulPosting
-          ? null
-          : undefined,
-    })}/>
   </EdittingProfile.Navigator>
   )
 };
@@ -56,9 +45,6 @@ const ModalScreen=()=>{
   return(
   <modalScreenPopUpNav.Navigator>
     <modalScreenPopUpNav.Screen name='MatchScreen' component={Match} options={{title:'Match'}}/>
-    <modalScreenPopUpNav.Screen name='PopUpScreen' component={PopupSreen} options={{
-        presentation: 'modal'
-      }}/>
   </modalScreenPopUpNav.Navigator>)
 }
 
@@ -74,8 +60,7 @@ export default function Navigation() {
       {user ?(
           <bottomTabs.Navigator>
           <bottomTabs.Screen name='Match' component={ModalScreen} options={{headerShown:false}}/>
-          <bottomTabs.Screen name='Message' component={Message} options={{ tabBarIcon: () => <Icon name="chat"  size={27} />}} />
-          <bottomTabs.Screen name='Activity' component={Activity}/>
+          {/*  */}
           <bottomTabs.Screen name='Setting' options={{title:'Settings',headerShown:false}} component={SettingScreen} />
           </bottomTabs.Navigator>
        ):( 
