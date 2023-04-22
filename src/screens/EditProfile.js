@@ -10,11 +10,9 @@ import callingContext from '../components/callingContext';
 import {doc,setDoc,serverTimestamp} from 'firebase/firestore'
 import { db, getDownloadURL} from '../Firebase Connectivity/Firebase';
 import { storage } from '../Firebase Connectivity/Firebase';
-import {ref,uploadBytes} from 'firebase/storage'
+import {ref,uploadBytes, updateMetadata} from 'firebase/storage'
 
-import { useNavigation } from '@react-navigation/native';
-
-
+import { useNavigation,  CommonActions} from '@react-navigation/native';
 
 
 const differentRunningTimes=[
@@ -61,7 +59,6 @@ const EditProfile=()=>{
                 console.log('User is not logged in.')
              }
              
-             
            }
      } catch (error) {
        console.error("Please try picking an image again:", error);
@@ -76,29 +73,38 @@ const EditProfile=()=>{
    },[photoUrl])
  
    const handleImageSubmission = async () => {
-    if (photoUrl) {
-        console.log('IT reaches to this function and the photoURL is ' + photoUrl);
-    //   const token = await user.uid;
-    //   console.log('User token:', token);
-        const pictureReference = ref(storage, `profilePictures/${user.uid}`);
-        const fetchedPhotoUrl=await fetch(photoUrl)
-        const thePicture = await fetchedPhotoUrl.blob();
-      try {
-        await uploadBytes(pictureReference, thePicture);
-        // await pictureReference.put(something);
-        console.log('Image uploaded successfully');
-        handleRetrievalOfImage(pictureReference,thePicture)
-        navigation.navigate('Match')
-      } catch (error) {
-        console.log(error);
+      if (photoUrl) {
+          console.log('IT reaches to this function and the photoURL is ' + photoUrl);
+          const token = await user.getIdToken();
+          console.log('User token:', token);
+
+            // const pictureReference = ref(storage, `images/${user.uid}/profilePic.jpeg`, { auth: token });
+            const picRef=ref(storage, `profilePictures/${user.uid}/pic`);
+            const fetchedPhotoUrl=await fetch(photoUrl)
+            const thePicture = await fetchedPhotoUrl.blob();
+            try {
+              console.log('Request',{
+                auth:{
+                  uid:user.uid,
+                  token:token
+                },
+                path:`profilePictures/${user.uid}/pic`,
+                method:'create'
+              })
+              await uploadBytes(picRef, thePicture);
+              console.log("Image uploaded successfully");
+              handleRetrievalOfImage(picRef, thePicture);
+              navigation.navigate("Match");
+            } catch (error) {
+              console.log(error);
+            }
+      } else {
+        console.log('photo is empty.');
       }
-    } else {
-      console.log('photo is empty.');
-    }
   };
 
-  const handleRetrievalOfImage=async(pictureReference,thePicture)=>{
-    const picture=await getDownloadURL(pictureReference)
+  const handleRetrievalOfImage=async(picRef,thePicture)=>{
+    const picture=await getDownloadURL(picRef)
     setPhotoUrl(picture)
     setSuccesfulPosting(true)
     submissionSuccess()
@@ -113,12 +119,6 @@ const EditProfile=()=>{
   const [time,setTime]=useState('');
   const [userSelectedTime, setUserHasSelectedTime]=useState(false)
 
-  // const[imageUploaded, setImageUploaded]=useState(false)
-  // const uploadPicture=async(uri)=>{
-  //   const response=await fetch(uri);
-  //   const blob=await response.blob();
-
-  // }
 
 
 
@@ -243,14 +243,24 @@ const EditProfile=()=>{
             name:displayName,
             dOB:`${z}/${y}/${x}`,
             borough:boroughOfUser,
-            weeklyRunningTime:userSelectedTime,
+            weeklyRunningTime:time,
             timestamp:serverTimestamp()
         }
 
         await setDoc(doc(db, "listOfUsers",user.uid),userDetailsToSendToFirebase)
-        handleImageSubmission().then()
+        await handleImageSubmission()
+        // navigation.navigate("Setting", { screen: "edit", params: { disableBackButton: false, succesfulPosting: succesfulPosting } });
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Setting' },
+            ],
+          })
+        );
         console.log('Woooo')
         console.log('SUCCESSFUL!')
+
       
       }
         
@@ -393,7 +403,6 @@ return (
 
     </View>
   );
-  
 
 }
 
@@ -470,14 +479,3 @@ const styles = StyleSheet.create({
   
   })
 
-
-   {/* <SelectList
-          data={listOfRunningDistances}
-          setSelected={(distance) => setRunningDistance(distance)}
-          save="value"
-        /> */}
-         {/* <TouchableOpacity onPress={handleSelectProfilePhoto}>
-                
-                <Text>Please Select Photo.</Text>
-            </TouchableOpacity>
-        <Image source={{ uri: photoUrl }} style={{width:200,height:200}} /> */}

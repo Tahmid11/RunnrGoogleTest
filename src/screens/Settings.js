@@ -33,7 +33,7 @@ const Setting=({navigation})=>{
         <Button
         title="Press me"
         onPress={()=>{
-            navigation.navigate('EditProfile')
+            navigation.navigate('edit')
         }} />
 
         <Button 

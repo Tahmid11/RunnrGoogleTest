@@ -6,16 +6,12 @@ import 'expo-dev-client';
 // Initial state of the context, will be blank.
 // context in react native allows for the passing of data between components.
 const userContext=createContext({});
-
 GoogleSignin.configure({
         webClientId: '821295978995-uo6acice4frciqk5isf902uvapi3sr9f.apps.googleusercontent.com',
       });
 
 // The destructured argument in the component DiffProvider, is a way to render the child components of DiffProvider.
 export const DiffProvider=({children})=>{
-
-    
-    
     async function onGoogleButtonPress() {
       setLoading(true)
       
@@ -40,17 +36,14 @@ export const DiffProvider=({children})=>{
   const [user, setUser] = useState();
 //   Dont make use of setLoading - Global loading context...
   const [isLoading,setLoading]=useState(false);
-  
-
-  
-
   // When user state is changed, this function is called.
   function onAuthStateChanged(user) {
     
     try{
+      // if(user){
+        setUser(user);
+      // }
       
-      
-      setUser(user);
     // have a picture of loading spinner before the if statement.
     // if (initializing) 
       if (initializing) {
@@ -60,9 +53,6 @@ export const DiffProvider=({children})=>{
     catch(err){
       console.log(err)
     }
-    
-
-
   }
 
   // Listens to onAuthStateChanged component.
@@ -72,10 +62,6 @@ export const DiffProvider=({children})=>{
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
   }, []);
-
-
-  
-
   // Passing in cachedValues... give the previous value if nothing has changed.
   const cachedValue=useMemo(()=>({
     user,
@@ -84,12 +70,7 @@ export const DiffProvider=({children})=>{
     isLoading,
     setLoading,
     initializing
-
-
   }),[user,initializing,isLoading]);
-
-
-
     return(
         // userContext.Provider -Making use of userContext variable
         //  is a component which is providing data to the children components.
@@ -101,12 +82,10 @@ export const DiffProvider=({children})=>{
         
     )
 };
-
 // Custom Hook To Use in App.js
 // Cant call this function without it being a child of DiffProvider.
 // Using the useContext hook to retrieve the current value of 'userContext' variable which can be used in 
 // other components.
-
 export default function callingContext(){
     return useContext(userContext);
 }

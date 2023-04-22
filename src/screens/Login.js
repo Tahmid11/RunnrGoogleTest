@@ -13,12 +13,7 @@ const Login = () => {
     try {
       await onGoogleButtonPress();
       console.log('This is the value currently in Loading in Login.js :' + isLoading)
-      
-      
       console.log('Signed in with Google!');
-
-      
-
       await setLoading(false);
       console.log('What is isLoading right now after logging in: ', isLoading);
     } catch (error) {
@@ -27,21 +22,15 @@ const Login = () => {
       setLoading(false)
     }
   };
-  
   return (
-   
     <View style={styles.wrap}>
       <Text>{isLoading ?'Loading...' :'This is the login screen.'}</Text>
-
-      
       <TouchableOpacity onPress={handleGoogleSignIn} style={styles.button}>
         <Text style={styles.font}>Google Signin Button</Text>
-
       </TouchableOpacity>
     </View>
   );
 };
-
 const styles=StyleSheet.create({
   wrap:{
     flex:1,

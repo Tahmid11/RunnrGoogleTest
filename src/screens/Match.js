@@ -1,45 +1,5 @@
-          const db = [
-            {
-              name: 'Richard Hendricks',
-              img: require('../../assets/images1.png')
-            },
-            {
-              name: 'Erlich Bachman',
-              img: require('../../assets/images1.png')
-            },
-            {
-              name: 'Monica Hall',
-              img: require('../../assets/images1.png')
-            },
-            {
-              name: 'Jared Dunn',
-              img: require('../../assets/images1.png')
-            },
-            {
-              name: 'Dinesh Chugtai',
-              img: require('../../assets/images1.png')
-            }
-            ]
-          
-          // const alreadyRemoved = []
-          // let charactersState = db // This fixes issues with updating characters state forcing it to use the current state and not the state that was active when the card was created.
-          
-          const listOfRunningDistances=[
-            {
-              key:1, value:'0-10 mins'
-            },
-            {key:2,value:'11-20 mins'
-            },
-            {
-              key:3,value:'21-30 mins'
-            }
-          ]
-          
 
-
-
-
-import React, { useState, useRef} from 'react'
+import React, { useState, useRef, useEffect} from 'react'
 import { ImageBackground, Text, View, Button, TextInput, TouchableOpacity, Modal,Image} from 'react-native'
 // import TinderCard from 'react-tinder-card'
 import CustomModal from "react-native-modal";
@@ -51,33 +11,45 @@ import DatePicker,{ getFormatedDate, getToday } from 'react-native-modern-datepi
 // Image Picker= https://docs.expo.dev/versions/latest/sdk/imagepicker/#mediatypeoptions
 
 import * as ImagePicker from 'expo-image-picker';
-
-
+import { collection, doc, getDoc,  getDocs,  query, where } from "firebase/firestore";
+import { db, getDownloadURL} from '../Firebase Connectivity/Firebase';
 import Swiper from 'react-native-deck-swiper';
+import callingContext from '../components/callingContext';
+import { useNavigation } from '@react-navigation/native';
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
 
 const Match = ({navigation}) => {
-  const [characters, setCharacters] = useState(db)
-  const [lastDirection, setLastDirection] = useState()
-  const [modalVisible, setModalVisible] = useState(false);
-  
-  // const [park,setPark]=useState('');
+
+
+  const [listOfUsers,setListOfUsers]=useState([])
+  const {user}=callingContext();
+
+  useEffect(()=>{
+    const checkUserHasSignedUpFully=async()=>{
+      const documentLocation=doc(db,'listOfUsers', user.uid)
+      const getDocument=await getDoc(documentLocation)
+      console.log('getDocument(): ' , getDocument.id)
+      console.log("getDocument.exists():", getDocument.exists());
+      console.log("getDocument.data():", getDocument.data());
+      gettingUsersInformaiton()
+
+
+      if (!getDocument.exists()||
+      !getDocument.data().borough ||
+      !getDocument.data().dOB ||
+      !getDocument.data().name ||
+      !getDocument.data().timestamp ||
+      !getDocument.data().weeklyRunningTime){
+        navigation.navigate("Setting", { screen: "edit", params: { disableBackButton: true } });
+        }
+      else{
+        navigation.navigate('Match')
+      }
+    }
+    checkUserHasSignedUpFully();
+  },[])
+
   const swipe = useRef(null)
 
   const handleLeftSwipe=()=>{
@@ -91,17 +63,31 @@ const Match = ({navigation}) => {
 
   const [hasSwipedAll, setHasSwipedAll]=useState(false)
 
+  // Getting User Information.
+
+  const gettingUsersInformaiton=async()=>{
+    const getReference=await getDocs(collection(db,'listOfUsers'))
+    const gettingAllUsersInfo=[]
 
 
+    getReference.forEach((doc)=>{
+      if (doc.id!==user.uid){
+        console.log('The doc id:', doc.id, ' and its data: ', doc.data())
+        // Creating an array of objects.
+        gettingAllUsersInfo.push({id: doc.id, ...doc.data() })
+      }
+    })
+    setListOfUsers(gettingAllUsersInfo)
 
-
+   
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>React Native Tinder Card</Text>
       <View style={{position:'absolute', alignItems:'center'}}>
-        <Swiper
-          cards={db}
+      <Swiper
+          cards={listOfUsers}
           cardIndex={0}
           infinite={false}
           verticalSwipe={false}
@@ -112,10 +98,8 @@ const Match = ({navigation}) => {
           onSwipedAll={()=>{setHasSwipedAll(true)}}
           ref={swipe}
           renderCard={
-            
             (card, index) => {
-              card?(
-                
+              return index < listOfUsers.length ? (
                   <View key={index} style={{ 
                     borderRadius: 4,
                     borderWidth: 2,
@@ -123,34 +107,33 @@ const Match = ({navigation}) => {
                     backgroundColor: "white",
                     height:400,
                     width:300}}>
-    
-                    <ImageBackground source={card.img} style={styles.cardImage}>
-                      <Text style={{textAlign: "center",fontSize: 50,backgroundColor: "transparent", color:'white'}}>
+                    {/* <ImageBackground source={card.img} style={styles.cardImage}>
+                     
+                    </ImageBackground> */}
+                    <Text style={{textAlign: "center",fontSize: 50,color:'black'}}>
                         {card.name}
-                        </Text>
-                    </ImageBackground>
+                      </Text>
                   </View>
-                
-
-              ):(
-                <Text>You swiped through all the cards.</Text>
-              )
-              
-            
-          }}
+              ) : null;
+            }
+          }
           stackSize={5}
         />
-         {
-                hasSwipedAll?(
-                <Text>No more cards left to swipe.</Text>)
-                :
-                (
-                  <View>
-                <Button title='Swipe Left' onPress={handleLeftSwipe}/>
-                <Button title='Swipe Right' onPress={handleSwipeRight}/>
-                </View>
-                )
-          }
+         {hasSwipedAll && (
+          <View style={{flex:1,top:10, position: 'absolute', zIndex: 2, color:'transparent'}}> 
+          <Text style={{marginTop: 20, alignContent:'center', color:'blue', left:200}}>No more cards left to swipe.</Text>
+          </View>
+        )}
+        {!hasSwipedAll && (
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity style={styles.swipeLeftButton} onPress={handleLeftSwipe}>
+              <Text style={styles.swipeButtonText}>Swipe Left</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.swipeRightButton} onPress={handleSwipeRight}>
+              <Text style={styles.swipeButtonText}>Swipe Right</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         
         
@@ -172,6 +155,7 @@ const styles = {
     color: '#000',
     fontSize: 30,
     marginBottom: 30,
+    textAlign: 'center', // Added to center the text
   },
   // cardContainer: {
   //   width: '90%',
@@ -252,7 +236,27 @@ font:{
     left: 0,
     right: 0,
     bottom: 10,
-  }
+  },
+  buttonsContainer: {
+    top:400
+  },
+  
+  swipeLeftButton: {
+    backgroundColor: 'transparent',
+    padding: 10,
+    borderRadius: 5,
+
+  },
+  swipeRightButton: {
+    backgroundColor: 'transparent',
+    padding: 10,
+    borderRadius: 5,
+    position:'absolute',
+    left:300
+  },
+  swipeButtonText: {
+    fontSize: 16,
+  },
 
 }
 

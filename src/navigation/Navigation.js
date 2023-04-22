@@ -24,16 +24,23 @@ import Icon from 'react-native-vector-icons/Entypo'
 
 // Creating the different navigation.
 const bottomTabs = createBottomTabNavigator();
-const editProfile=createNativeStackNavigator();
+const EdittingProfile=createNativeStackNavigator();
 const loginStackNav=createNativeStackNavigator();
 const modalScreenPopUpNav=createNativeStackNavigator();
 // Creation of stack navigator for setting and editing profile page.
 const SettingScreen=()=>{
   return(
-  <editProfile.Navigator>
-    <editProfile.Screen name='SettingScreen' component={Setting} options={{title:'Setting'}}/>
-    <editProfile.Screen name='EditProfile' component={EditProfile} options={{title:'Edit Profile'}}/>
-  </editProfile.Navigator>
+  <EdittingProfile.Navigator>
+    <EdittingProfile.Screen name='SettingScreen' component={Setting} options={{title:'Setting'}}/>
+    <EdittingProfile.Screen name='edit' component={EditProfile}  
+    options={({ route }) => ({
+      title: "Edit Profile",
+      headerLeft:
+        route.params?.disableBackButton || !route.params?.succesfulPosting
+          ? null
+          : undefined,
+    })}/>
+  </EdittingProfile.Navigator>
   )
 };
 
